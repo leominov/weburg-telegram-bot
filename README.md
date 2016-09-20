@@ -1,11 +1,12 @@
 # Weburg. Бот Telegram
 
-Вебург у вас в телеграме. Weburg Times: @weburg_times . Новинки видео: @weburg_movies . Новинки музыки: @weburg_music . Новинки сериалов: @weburg_series
+Вебург у вас в телеграме. Weburg Times: [@weburg_times](http://telegram.me/weburg_times). Новинки видео: [@weburg_movies](http://telegram.me/weburg_movies). Новинки музыки: [@weburg_music](http://telegram.me/weburg_music). Новинки сериалов: [@weburg_series](http://telegram.me/weburg_series).
 
 ## Запуск
 
 ```
-go run main.go start
+$ make
+$ ./bin/weburg-telegram-bot
 ```
 
 ## Параметры
