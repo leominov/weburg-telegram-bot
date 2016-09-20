@@ -1,9 +1,10 @@
 package main
 
 import (
-	"gotel/bot"
-	"gotel/clicommand"
 	"os"
+
+	"github.com/leominov/weburg-telegram-bot/bot"
+	"github.com/leominov/weburg-telegram-bot/clicommand"
 
 	"github.com/codegangsta/cli"
 )

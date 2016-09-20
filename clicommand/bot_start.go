@@ -1,8 +1,8 @@
 package clicommand
 
 import (
-	"gotel/bot"
-	"gotel/watcher"
+	"github.com/leominov/weburg-telegram-bot/bot"
+	"github.com/leominov/weburg-telegram-bot/watcher"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"

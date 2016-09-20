@@ -1,8 +1,9 @@
 package watcher
 
 import (
-	"gotel/bot"
 	"time"
+
+	"github.com/leominov/weburg-telegram-bot/bot"
 
 	"github.com/tucnak/telebot"
 )

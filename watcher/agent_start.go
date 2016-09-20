@@ -3,7 +3,7 @@ package watcher
 import (
 	"time"
 
-	"gotel/bot"
+	"github.com/leominov/weburg-telegram-bot/bot"
 
 	"github.com/Sirupsen/logrus"
 	rss "github.com/ungerik/go-rss"
