@@ -13,6 +13,9 @@ type WeburgBot struct {
 	Token     string
 	Channel   string
 	StartTime time.Time
+
+	ListenAddr  string
+	MetricsPath string
 }
 
 func (w *WeburgBot) Start() error {

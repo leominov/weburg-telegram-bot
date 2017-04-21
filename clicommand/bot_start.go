@@ -9,10 +9,12 @@ import (
 )
 
 type BotStartConfig struct {
-	Token    string
-	RssWatch bool
-	Debug    bool
-	NoColor  bool
+	Token       string
+	RssWatch    bool
+	Debug       bool
+	NoColor     bool
+	ListenAddr  string
+	MetricsPath string
 }
 
 var BotStartCommand = cli.Command{
@@ -30,21 +32,37 @@ var BotStartCommand = cli.Command{
 			Usage:  "Enable RSS watching",
 			EnvVar: "WEBURG_BOT_RSS_WATCH",
 		},
+		cli.StringFlag{
+			Name:   "listen-address",
+			Value:  ":9109",
+			Usage:  "Address to listen on for web interface and telemetry",
+			EnvVar: "WEBURG_BOT_LISTEN_ADDR",
+		},
+		cli.StringFlag{
+			Name:   "metrics-path",
+			Value:  "/metrics",
+			Usage:  "Path under which to expose metrics",
+			EnvVar: "WEBURG_BOT_METRICS_PATH",
+		},
 		DebugFlag,
 		NoColorFlag,
 	},
 	Action: func(c *cli.Context) {
 		cfg := BotStartConfig{
-			Token:    c.String("token"),
-			RssWatch: c.Bool("rss-watch"),
-			Debug:    c.Bool("debug"),
-			NoColor:  c.Bool("no-color"),
+			Token:       c.String("token"),
+			RssWatch:    c.Bool("rss-watch"),
+			Debug:       c.Bool("debug"),
+			NoColor:     c.Bool("no-color"),
+			ListenAddr:  c.String("listen-address"),
+			MetricsPath: c.String("metrics-path"),
 		}
 
 		HandleGlobalFlags(cfg)
 
 		w := bot.WeburgBot{
-			Token: cfg.Token,
+			Token:       cfg.Token,
+			ListenAddr:  cfg.ListenAddr,
+			MetricsPath: cfg.MetricsPath,
 		}
 
 		if err := w.Start(); err != nil {
@@ -59,6 +77,10 @@ var BotStartCommand = cli.Command{
 			go w.StartWatch()
 		}
 
-		w.Listen()
+		w.ServeMetrics()
 	},
+}
+
+func init() {
+	bot.InitMetrics()
 }

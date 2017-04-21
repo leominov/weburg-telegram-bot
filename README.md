@@ -12,7 +12,7 @@ $ ./bin/weburg-telegram-bot
 ## Статус
 
 ```
-$ curl http://127.0.0.1:5000/
+$ curl http://127.0.0.1:9109/metrics
 ```
 
 ## Параметры
@@ -22,4 +22,6 @@ $ curl http://127.0.0.1:5000/
 --rss-watch, -r  Enable RSS watching [$WEBURG_BOT_RSS_WATCH]
 --debug, -d      Enable debug mode [$WEBURG_BOT_DEBUG]
 --no-color, --nc Don't show colors in logging [$WEBURG_BOT_NO_COLOR]
+--listen-address Address to listen on for web interface and telemetry [$WEBURG_BOT_LISTEN_ADDR]
+--metrics-path   Path under which to expose metrics [$WEBURG_BOT_METRICS_PATH]
 ```

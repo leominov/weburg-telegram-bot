@@ -31,8 +31,10 @@ func (r *RssAgent) Start(sender bot.WeburgBot) error {
 	r.first = true
 	r.Sender = sender
 
+	bot.PullsTotalCounter.Inc()
 	feed, err := rss.Read(r.Endpoint)
 	if err != nil {
+		bot.PullsFailCounter.Inc()
 		return err
 	}
 
@@ -43,8 +45,10 @@ func (r *RssAgent) Start(sender bot.WeburgBot) error {
 	}
 
 	for {
+		bot.PullsTotalCounter.Inc()
 		feed, err = rss.Read(r.Endpoint)
 		if err != nil {
+			bot.PullsFailCounter.Inc()
 			logrus.Errorf("Error with %s: %+v", r.Endpoint, err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -78,5 +82,10 @@ func (r *RssAgent) itemHandler(items []rss.Item) error {
 	r.lastGUID = item.GUID
 
 	logrus.Infof("Send '%s' to %s channel", item.Title, r.Type)
-	return r.Sender.SendMessage(r.Channel, item.Title+"\n\n"+item.Link)
+	bot.MessagesTotalCounter.Inc()
+	if err := r.Sender.SendMessage(r.Channel, item.Title+"\n\n"+item.Link); err != nil {
+		bot.MessagesFailCounter.Inc()
+		return err
+	}
+	return nil
 }
