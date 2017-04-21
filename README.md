@@ -6,7 +6,7 @@
 
 ```
 $ make
-$ ./bin/weburg-telegram-bot
+$ ./bin/weburg-telegram-bot start
 ```
 
 ## Статус
