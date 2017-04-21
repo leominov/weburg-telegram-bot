@@ -15,6 +15,13 @@ $ ./bin/weburg-telegram-bot
 $ curl http://127.0.0.1:9109/metrics
 ```
 
+## Метрики
+
+* `pulls_total_count` – число запросов RSS-лент;
+* `pulls_fail_count` – число ошибок, при запросах RSS-лент;
+* `messages_total_count` – число отправленных сообщений в Telegram;
+* `messages_fail_count` – число ошибок, при отправке сообщений в Telegram.
+
 ## Параметры
 
 ```
