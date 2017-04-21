@@ -9,26 +9,24 @@ $ make
 $ ./bin/weburg-telegram-bot start
 ```
 
-## Статус
+## Параметры
+
+```
+--token, -t      Telegram API токен [$WEBURG_BOT_TOKEN]
+--rss-watch, -r  Запустить в режиме демона [$WEBURG_BOT_RSS_WATCH]
+--debug, -d      Режим отладки [$WEBURG_BOT_DEBUG]
+--no-color, --nc Отключение цветов в логах [$WEBURG_BOT_NO_COLOR]
+--listen-address Адрес для веб-интерфейса и телеметрии [$WEBURG_BOT_LISTEN_ADDR]
+--metrics-path   Путь, по которому будут доступны метрики [$WEBURG_BOT_METRICS_PATH]
+```
+
+## Метрики
 
 ```
 $ curl http://127.0.0.1:9109/metrics
 ```
 
-## Метрики
-
 * `pulls_total_count` – число запросов RSS-лент;
 * `pulls_fail_count` – число ошибок, при запросах RSS-лент;
 * `messages_total_count` – число отправленных сообщений в Telegram;
 * `messages_fail_count` – число ошибок, при отправке сообщений в Telegram.
-
-## Параметры
-
-```
---token, -t      Your Telegram API token [$WEBURG_BOT_TOKEN]
---rss-watch, -r  Enable RSS watching [$WEBURG_BOT_RSS_WATCH]
---debug, -d      Enable debug mode [$WEBURG_BOT_DEBUG]
---no-color, --nc Don't show colors in logging [$WEBURG_BOT_NO_COLOR]
---listen-address Address to listen on for web interface and telemetry [$WEBURG_BOT_LISTEN_ADDR]
---metrics-path   Path under which to expose metrics [$WEBURG_BOT_METRICS_PATH]
-```
