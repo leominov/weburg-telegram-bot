@@ -2,6 +2,7 @@ package clicommand
 
 import (
 	"github.com/leominov/weburg-telegram-bot/bot"
+	"github.com/leominov/weburg-telegram-bot/metrics"
 	"github.com/leominov/weburg-telegram-bot/watcher"
 
 	"github.com/Sirupsen/logrus"
@@ -60,9 +61,7 @@ var BotStartCommand = cli.Command{
 		HandleGlobalFlags(cfg)
 
 		w := bot.WeburgBot{
-			Token:       cfg.Token,
-			ListenAddr:  cfg.ListenAddr,
-			MetricsPath: cfg.MetricsPath,
+			Token: cfg.Token,
 		}
 
 		if err := w.Start(); err != nil {
@@ -75,12 +74,11 @@ var BotStartCommand = cli.Command{
 			}
 
 			go w.StartWatch()
+			metrics.ServeMetrics(cfg.ListenAddr, cfg.MetricsPath)
 		}
-
-		w.ServeMetrics()
 	},
 }
 
 func init() {
-	bot.InitMetrics()
+	metrics.InitMetrics()
 }

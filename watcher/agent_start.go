@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/leominov/weburg-telegram-bot/bot"
+	"github.com/leominov/weburg-telegram-bot/metrics"
 
 	"github.com/Sirupsen/logrus"
 	rss "github.com/ungerik/go-rss"
@@ -31,10 +32,12 @@ func (r *RssAgent) Start(sender bot.WeburgBot) error {
 	r.first = true
 	r.Sender = sender
 
-	bot.PullsTotalCounter.Inc()
+	metrics.PullsTotalCounter.Inc()
+	metrics.PullsTotalCounters[r.Type].Inc()
 	feed, err := rss.Read(r.Endpoint)
 	if err != nil {
-		bot.PullsFailCounter.Inc()
+		metrics.PullsFailCounter.Inc()
+		metrics.PullsFailCounters[r.Type].Inc()
 		return err
 	}
 
@@ -45,10 +48,12 @@ func (r *RssAgent) Start(sender bot.WeburgBot) error {
 	}
 
 	for {
-		bot.PullsTotalCounter.Inc()
+		metrics.PullsTotalCounter.Inc()
+		metrics.PullsTotalCounters[r.Type].Inc()
 		feed, err = rss.Read(r.Endpoint)
 		if err != nil {
-			bot.PullsFailCounter.Inc()
+			metrics.PullsFailCounter.Inc()
+			metrics.PullsFailCounters[r.Type].Inc()
 			logrus.Errorf("Error with %s: %+v", r.Endpoint, err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -82,9 +87,11 @@ func (r *RssAgent) itemHandler(items []rss.Item) error {
 	r.lastGUID = item.GUID
 
 	logrus.Infof("Send '%s' to %s channel", item.Title, r.Type)
-	bot.MessagesTotalCounter.Inc()
+	metrics.MessagesTotalCounter.Inc()
+	metrics.MessagesTotalCounters[r.Type].Inc()
 	if err := r.Sender.SendMessage(r.Channel, item.Title+"\n\n"+item.Link); err != nil {
-		bot.MessagesFailCounter.Inc()
+		metrics.MessagesFailCounter.Inc()
+		metrics.MessagesFailCounters[r.Type].Inc()
 		return err
 	}
 	return nil

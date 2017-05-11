@@ -27,6 +27,10 @@ $ curl http://127.0.0.1:9109/metrics
 ```
 
 * `pulls_total_count` – число запросов RSS-лент;
+* `pulls_feed_total_count` – число запросов по лентам;
 * `pulls_fail_count` – число ошибок, при запросах RSS-лент;
+* `pulls_feed_fail_count` – число ошибок, при запросах по лентам;
 * `messages_total_count` – число отправленных сообщений в Telegram;
-* `messages_fail_count` – число ошибок, при отправке сообщений в Telegram.
+* `messages_feed_total_count` – число отправленных сообщений по лентам;
+* `messages_fail_count` – число ошибок, при отправке сообщений в Telegram;
+* `messages_feed_fail_count` – число ошибок, при отправке сообщений по лентам.
