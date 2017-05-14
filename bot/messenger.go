@@ -12,14 +12,14 @@ type Messenger struct {
 }
 
 func (m *Messenger) Authorize() error {
-	wbot, err := telebot.NewBot(m.Token)
+	bot, err := telebot.NewBot(m.Token)
 	if err != nil {
 		return err
 	}
 
-	logrus.Info("Authorized as ", wbot.Identity.Username)
+	logrus.Info("Authorized as ", bot.Identity.Username)
 
-	m.b = wbot
+	m.b = bot
 
 	return nil
 }
