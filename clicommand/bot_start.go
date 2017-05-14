@@ -60,19 +60,16 @@ var BotStartCommand = cli.Command{
 
 		HandleGlobalFlags(cfg)
 
-		w := bot.WeburgBot{
+		bot := bot.WeburgBot{
 			Token: cfg.Token,
 		}
 
-		if err := w.Start(); err != nil {
+		if err := bot.Start(); err != nil {
 			logrus.Fatalf("%+v", err)
 		}
 
 		if cfg.RssWatch {
-			w := watcher.RssWatcher{
-				Sender: w,
-			}
-
+			w := watcher.RssWatcher{bot}
 			go w.StartWatch()
 			metrics.ServeMetrics(cfg.ListenAddr, cfg.MetricsPath)
 		}
