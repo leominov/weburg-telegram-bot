@@ -1,7 +1,6 @@
-package clicommand
+package commands
 
 import (
-	"github.com/leominov/weburg-telegram-bot/bot"
 	"github.com/leominov/weburg-telegram-bot/metrics"
 	"github.com/leominov/weburg-telegram-bot/watcher"
 
@@ -60,17 +59,16 @@ var BotStartCommand = cli.Command{
 
 		HandleGlobalFlags(cfg)
 
-		bot := bot.WeburgBot{
+		w := watcher.RssWatcher{watcher.Telegram{
 			Token: cfg.Token,
-		}
+		}}
 
-		if err := bot.Authorize(); err != nil {
+		if err := w.Telegram.Authorize(); err != nil {
 			logrus.Fatalf("%+v", err)
 		}
 
 		if cfg.RssWatch {
-			w := watcher.RssWatcher{bot}
-			go w.StartWatch()
+			go w.Start()
 			metrics.ServeMetrics(cfg.ListenAddr, cfg.MetricsPath)
 		}
 	},

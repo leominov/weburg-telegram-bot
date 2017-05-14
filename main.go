@@ -3,20 +3,21 @@ package main
 import (
 	"os"
 
-	"github.com/leominov/weburg-telegram-bot/bot"
-	"github.com/leominov/weburg-telegram-bot/clicommand"
+	"github.com/leominov/weburg-telegram-bot/commands"
 
 	"github.com/codegangsta/cli"
 )
 
+var Version string = "1.0-beta"
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "weburg-telegram-bot"
-	app.Version = bot.Version()
+	app.Version = Version
 	app.Author = "Lev Aminov <mailto@levaminov.ru>"
 
 	app.Commands = []cli.Command{
-		clicommand.BotStartCommand,
+		commands.BotStartCommand,
 	}
 
 	app.Action = func(c *cli.Context) {

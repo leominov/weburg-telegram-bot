@@ -1,7 +1,24 @@
 package watcher
 
-import "github.com/leominov/weburg-telegram-bot/bot"
+import "sync"
 
 type RssWatcher struct {
-	Sender bot.WeburgBot
+	Telegram Telegram
+}
+
+func (r *RssWatcher) Start() {
+	var w sync.WaitGroup
+	var totalAgents int
+
+	totalAgents = len(RssAgentsCollection)
+	w.Add(totalAgents)
+
+	for i := 0; i <= totalAgents-1; i++ {
+		go func(i int) {
+			RssAgentsCollection[i].Start(r.Telegram)
+			w.Done()
+		}(i)
+	}
+
+	w.Wait()
 }

@@ -1,4 +1,4 @@
-package clicommand
+package commands
 
 import (
 	"github.com/Sirupsen/logrus"
