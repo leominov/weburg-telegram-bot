@@ -15,7 +15,7 @@ type Config struct {
 }
 
 type Bot struct {
-	t            *Telegram
+	m            *Messenger
 	isConfigured bool
 	Config       Config
 }
@@ -30,16 +30,15 @@ func New(c Config) *Bot {
 func (b *Bot) Setup() error {
 	metrics.InitMetrics()
 
-	telegram := &Telegram{
+	messenger := &Messenger{
 		Token: b.Config.Token,
 	}
 
-	if err := telegram.Authorize(); err != nil {
+	if err := messenger.Authorize(); err != nil {
 		return err
 	}
 
-	b.t = telegram
-
+	b.m = messenger
 	b.isConfigured = true
 
 	return nil
@@ -60,7 +59,7 @@ func (b *Bot) Start() error {
 
 	for i := 0; i <= totalAgents-1; i++ {
 		go func(i int) {
-			AgentsCollection[i].Start(b.t)
+			AgentsCollection[i].Start(b.m)
 			wg.Done()
 		}(i)
 	}

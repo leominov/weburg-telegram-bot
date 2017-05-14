@@ -21,7 +21,7 @@ type Agent struct {
 	Endpoint       string
 	Interval       time.Duration
 	CetegoryFilter []string
-	Telegram       *Telegram
+	Messenger      *Messenger
 	Channel        telebot.Chat
 	CacheSize      int
 
@@ -69,9 +69,9 @@ func (a *Agent) CacheItems(items []rss.Item) error {
 	return nil
 }
 
-func (a *Agent) Start(telegram *Telegram) error {
+func (a *Agent) Start(messenger *Messenger) error {
 	a.firstPoll = true
-	a.Telegram = telegram
+	a.Messenger = messenger
 	a.lastGuids = []string{}
 
 	if a.CacheSize == 0 {
@@ -152,7 +152,7 @@ func (a *Agent) Notify(item rss.Item) error {
 	metrics.MessagesTotalCounter.Inc()
 	metrics.MessagesTotalCounters[a.Type].Inc()
 
-	if err := a.Telegram.Send(a.Channel, item.Title+"\n\n"+item.Link); err != nil {
+	if err := a.Messenger.Send(a.Channel, item.Title+"\n\n"+item.Link); err != nil {
 		metrics.MessagesFailCounter.Inc()
 		metrics.MessagesFailCounters[a.Type].Inc()
 
