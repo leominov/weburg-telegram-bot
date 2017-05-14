@@ -13,7 +13,7 @@ $ ./bin/weburg-telegram-bot start
 
 ```
 --token, -t      Telegram API токен [$WEBURG_BOT_TOKEN]
---rss-watch, -r  Запустить в режиме демона [$WEBURG_BOT_RSS_WATCH]
+--watch, -w      Запустить в режиме демона [$WEBURG_BOT_RSS_WATCH]
 --debug, -d      Режим отладки [$WEBURG_BOT_DEBUG]
 --no-color, --nc Отключение цветов в логах [$WEBURG_BOT_NO_COLOR]
 --listen-address Адрес для веб-интерфейса и телеметрии [$WEBURG_BOT_LISTEN_ADDR]

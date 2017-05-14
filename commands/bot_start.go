@@ -8,9 +8,9 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-type BotStartConfig struct {
+type StartCommandConfig struct {
 	Token       string
-	RssWatch    bool
+	Watch       bool
 	Debug       bool
 	NoColor     bool
 	ListenAddr  string
@@ -28,9 +28,9 @@ var BotStartCommand = cli.Command{
 			EnvVar: "WEBURG_BOT_TOKEN",
 		},
 		cli.BoolFlag{
-			Name:   "rss-watch, r",
+			Name:   "watch, w",
 			Usage:  "Enable RSS watching",
-			EnvVar: "WEBURG_BOT_RSS_WATCH",
+			EnvVar: "WEBURG_BOT_WATCH",
 		},
 		cli.StringFlag{
 			Name:   "listen-address",
@@ -48,9 +48,9 @@ var BotStartCommand = cli.Command{
 		NoColorFlag,
 	},
 	Action: func(c *cli.Context) {
-		cfg := BotStartConfig{
+		cfg := StartCommandConfig{
 			Token:       c.String("token"),
-			RssWatch:    c.Bool("rss-watch"),
+			Watch:       c.Bool("watch"),
 			Debug:       c.Bool("debug"),
 			NoColor:     c.Bool("no-color"),
 			ListenAddr:  c.String("listen-address"),
@@ -67,7 +67,7 @@ var BotStartCommand = cli.Command{
 			logrus.Fatalf("%+v", err)
 		}
 
-		if cfg.RssWatch {
+		if cfg.Watch {
 			go w.Start()
 			metrics.ServeMetrics(cfg.ListenAddr, cfg.MetricsPath)
 		}
