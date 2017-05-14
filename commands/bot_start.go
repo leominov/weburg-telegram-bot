@@ -59,7 +59,7 @@ var BotStartCommand = cli.Command{
 
 		HandleGlobalFlags(cfg)
 
-		w := watcher.RssWatcher{watcher.Telegram{
+		w := watcher.Watcher{watcher.Telegram{
 			Token: cfg.Token,
 		}}
 

@@ -16,7 +16,7 @@ const (
 	DefaultCacheSize = 1
 )
 
-type RssAgent struct {
+type Agent struct {
 	Type           string
 	Endpoint       string
 	Interval       time.Duration
@@ -30,8 +30,8 @@ type RssAgent struct {
 }
 
 var (
-	RssAgentsCollection = []RssAgent{
-		RssAgent{
+	AgentsCollection = []Agent{
+		Agent{
 			Type:     "movies",
 			Endpoint: "http://rss.weburg.net/movies/all.rss",
 			Interval: time.Minute,
@@ -41,7 +41,7 @@ var (
 			},
 			CacheSize: 3,
 		},
-		RssAgent{
+		Agent{
 			Type:     "music",
 			Endpoint: "http://rss.weburg.net/music/all.rss",
 			Interval: time.Minute,
@@ -51,7 +51,7 @@ var (
 			},
 			CacheSize: 3,
 		},
-		RssAgent{
+		Agent{
 			Type:     "news",
 			Endpoint: "http://rss.weburg.net/news/all.rss",
 			Interval: time.Minute,
@@ -61,7 +61,7 @@ var (
 			},
 			CacheSize: 10,
 		},
-		RssAgent{
+		Agent{
 			Type:     "series",
 			Endpoint: "http://rss.weburg.net/movies/series.rss",
 			Interval: time.Minute,
@@ -74,18 +74,18 @@ var (
 	}
 )
 
-func (r *RssAgent) CanPost(item rss.Item) bool {
-	for _, guid := range r.lastGuids {
+func (a *Agent) CanPost(item rss.Item) bool {
+	for _, guid := range a.lastGuids {
 		if item.GUID == guid {
 			return false
 		}
 	}
 
-	if len(r.CetegoryFilter) == 0 {
+	if len(a.CetegoryFilter) == 0 {
 		return true
 	}
 
-	for _, filterCategory := range r.CetegoryFilter {
+	for _, filterCategory := range a.CetegoryFilter {
 		for _, category := range item.Category {
 			if filterCategory == category {
 				return true
@@ -96,88 +96,88 @@ func (r *RssAgent) CanPost(item rss.Item) bool {
 	return false
 }
 
-func (r *RssAgent) CacheItems(items []rss.Item) error {
+func (a *Agent) CacheItems(items []rss.Item) error {
 	if len(items) == 0 {
 		return errors.New("Empty items list")
 	}
 
-	r.lastGuids = []string{}
+	a.lastGuids = []string{}
 	for _, item := range items {
-		if len(r.lastGuids) == r.CacheSize {
+		if len(a.lastGuids) == a.CacheSize {
 			break
 		}
-		r.lastGuids = append(r.lastGuids, item.GUID)
+		a.lastGuids = append(a.lastGuids, item.GUID)
 	}
 
-	logrus.Debugf("Update cached '%s' GUIDs list (max.: %d): %s", r.Type, r.CacheSize, strings.Join(r.lastGuids, ", "))
+	logrus.Debugf("Update cached '%s' GUIDs list (max.: %d): %s", a.Type, a.CacheSize, strings.Join(a.lastGuids, ", "))
 
 	return nil
 }
 
-func (r *RssAgent) Start(telegram Telegram) error {
-	r.firstPoll = true
-	r.Telegram = telegram
-	r.lastGuids = []string{}
+func (a *Agent) Start(telegram Telegram) error {
+	a.firstPoll = true
+	a.Telegram = telegram
+	a.lastGuids = []string{}
 
-	if r.CacheSize == 0 {
-		r.CacheSize = DefaultCacheSize
+	if a.CacheSize == 0 {
+		a.CacheSize = DefaultCacheSize
 	}
 
 	metrics.PullsTotalCounter.Inc()
-	metrics.PullsTotalCounters[r.Type].Inc()
-	feed, err := rss.Read(r.Endpoint)
+	metrics.PullsTotalCounters[a.Type].Inc()
+	feed, err := rss.Read(a.Endpoint)
 	if err != nil {
 		metrics.PullsFailCounter.Inc()
-		metrics.PullsFailCounters[r.Type].Inc()
+		metrics.PullsFailCounters[a.Type].Inc()
 		return err
 	}
 
 	logrus.Infof("Found feed '%s'", feed.Title)
 
-	r.CacheItems(feed.Item)
+	a.CacheItems(feed.Item)
 
 	for {
 		metrics.PullsTotalCounter.Inc()
-		metrics.PullsTotalCounters[r.Type].Inc()
+		metrics.PullsTotalCounters[a.Type].Inc()
 
-		feed, err = rss.Read(r.Endpoint)
+		feed, err = rss.Read(a.Endpoint)
 		if err != nil {
 			metrics.PullsFailCounter.Inc()
-			metrics.PullsFailCounters[r.Type].Inc()
-			logrus.Errorf("Error with %s: %+v", r.Endpoint, err)
+			metrics.PullsFailCounters[a.Type].Inc()
+			logrus.Errorf("Error with %s: %+v", a.Endpoint, err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
-		if err := r.itemHandler(feed.Item); err != nil {
-			logrus.Errorf("Error with %s: %+v", r.Endpoint, err)
+		if err := a.itemHandler(feed.Item); err != nil {
+			logrus.Errorf("Error with %s: %+v", a.Endpoint, err)
 		}
 
-		<-time.After(r.Interval)
+		<-time.After(a.Interval)
 	}
 
 	return nil
 }
 
-func (r *RssAgent) itemHandler(items []rss.Item) error {
+func (a *Agent) itemHandler(items []rss.Item) error {
 	var checks int
 	var changed bool
 
-	logrus.Debugf("Got %d items in '%s' channel", len(items), r.Type)
+	logrus.Debugf("Got %d items in '%s' channel", len(items), a.Type)
 
-	if len(items) == 0 || r.firstPoll == true {
-		logrus.Debugf("Skipping update in '%s' channel", r.Type)
-		r.firstPoll = false
+	if len(items) == 0 || a.firstPoll == true {
+		logrus.Debugf("Skipping update in '%s' channel", a.Type)
+		a.firstPoll = false
 		return nil
 	}
 
 	for _, item := range items {
-		if checks == r.CacheSize {
+		if checks == a.CacheSize {
 			break
 		}
-		if r.CanPost(item) == true {
+		if a.CanPost(item) == true {
 			changed = true
-			if err := r.Notify(item); err != nil {
+			if err := a.Notify(item); err != nil {
 				logrus.Error(err)
 			}
 		}
@@ -185,21 +185,21 @@ func (r *RssAgent) itemHandler(items []rss.Item) error {
 	}
 
 	if changed {
-		r.CacheItems(items)
+		a.CacheItems(items)
 	}
 
 	return nil
 }
 
-func (r *RssAgent) Notify(item rss.Item) error {
-	logrus.Infof("Send '%s' to %s channel", item.Title, r.Type)
+func (a *Agent) Notify(item rss.Item) error {
+	logrus.Infof("Send '%s' to %s channel", item.Title, a.Type)
 
 	metrics.MessagesTotalCounter.Inc()
-	metrics.MessagesTotalCounters[r.Type].Inc()
+	metrics.MessagesTotalCounters[a.Type].Inc()
 
-	if err := r.Telegram.Send(r.Channel, item.Title+"\n\n"+item.Link); err != nil {
+	if err := a.Telegram.Send(a.Channel, item.Title+"\n\n"+item.Link); err != nil {
 		metrics.MessagesFailCounter.Inc()
-		metrics.MessagesFailCounters[r.Type].Inc()
+		metrics.MessagesFailCounters[a.Type].Inc()
 
 		return err
 	}

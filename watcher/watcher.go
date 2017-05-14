@@ -2,23 +2,23 @@ package watcher
 
 import "sync"
 
-type RssWatcher struct {
+type Watcher struct {
 	Telegram Telegram
 }
 
-func (r *RssWatcher) Start() {
-	var w sync.WaitGroup
+func (w *Watcher) Start() {
+	var wg sync.WaitGroup
 	var totalAgents int
 
-	totalAgents = len(RssAgentsCollection)
-	w.Add(totalAgents)
+	totalAgents = len(AgentsCollection)
+	wg.Add(totalAgents)
 
 	for i := 0; i <= totalAgents-1; i++ {
 		go func(i int) {
-			RssAgentsCollection[i].Start(r.Telegram)
-			w.Done()
+			AgentsCollection[i].Start(w.Telegram)
+			wg.Done()
 		}(i)
 	}
 
-	w.Wait()
+	wg.Wait()
 }
