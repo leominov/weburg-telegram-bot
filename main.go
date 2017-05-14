@@ -17,7 +17,7 @@ func main() {
 	app.Author = "Lev Aminov <mailto@levaminov.ru>"
 
 	app.Commands = []cli.Command{
-		commands.BotStartCommand,
+		commands.StartCommand,
 	}
 
 	app.Action = func(c *cli.Context) {
