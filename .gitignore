@@ -20,5 +20,6 @@ _cgo_gotypes.go
 _cgo_export.*
 
 bin/
+rsssimulator/
 Procfile
 main

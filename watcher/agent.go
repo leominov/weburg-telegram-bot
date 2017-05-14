@@ -15,9 +15,10 @@ type RssAgent struct {
 	CetegoryFilter []string
 	Sender         bot.WeburgBot
 	Channel        telebot.Chat
+	CacheSize      int
 
-	first    bool
-	lastGUID string
+	firstPoll bool
+	lastGuids []string
 }
 
 var (
@@ -30,6 +31,7 @@ var (
 				Type:     "channel",
 				Username: "weburg_movies",
 			},
+			CacheSize: 3,
 		},
 		RssAgent{
 			Type:     "music",
@@ -39,6 +41,7 @@ var (
 				Type:     "channel",
 				Username: "weburg_music",
 			},
+			CacheSize: 3,
 		},
 		RssAgent{
 			Type:     "news",
@@ -48,6 +51,7 @@ var (
 				Type:     "channel",
 				Username: "weburg_times",
 			},
+			CacheSize: 10,
 		},
 		RssAgent{
 			Type:     "series",
@@ -57,6 +61,7 @@ var (
 				Type:     "channel",
 				Username: "weburg_series",
 			},
+			CacheSize: 2,
 		},
 	}
 )

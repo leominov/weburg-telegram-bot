@@ -1,6 +1,8 @@
 package watcher
 
 import (
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/leominov/weburg-telegram-bot/bot"
@@ -10,10 +12,18 @@ import (
 	rss "github.com/ungerik/go-rss"
 )
 
+const (
+	DefaultCacheSize = 1
+)
+
 func (r *RssAgent) CanPost(item rss.Item) bool {
-	if r.lastGUID == item.GUID {
-		return false
-	} else if len(r.CetegoryFilter) == 0 {
+	for _, guid := range r.lastGuids {
+		if item.GUID == guid {
+			return false
+		}
+	}
+
+	if len(r.CetegoryFilter) == 0 {
 		return true
 	}
 
@@ -28,9 +38,32 @@ func (r *RssAgent) CanPost(item rss.Item) bool {
 	return false
 }
 
+func (r *RssAgent) CacheItems(items []rss.Item) error {
+	if len(items) == 0 {
+		return errors.New("Empty items list")
+	}
+
+	r.lastGuids = []string{}
+	for _, item := range items {
+		if len(r.lastGuids) == r.CacheSize {
+			break
+		}
+		r.lastGuids = append(r.lastGuids, item.GUID)
+	}
+
+	logrus.Debugf("Update cached '%s' GUIDs list (max.: %d): %s", r.Type, r.CacheSize, strings.Join(r.lastGuids, ", "))
+
+	return nil
+}
+
 func (r *RssAgent) Start(sender bot.WeburgBot) error {
-	r.first = true
+	r.firstPoll = true
 	r.Sender = sender
+	r.lastGuids = []string{}
+
+	if r.CacheSize == 0 {
+		r.CacheSize = DefaultCacheSize
+	}
 
 	metrics.PullsTotalCounter.Inc()
 	metrics.PullsTotalCounters[r.Type].Inc()
@@ -43,13 +76,12 @@ func (r *RssAgent) Start(sender bot.WeburgBot) error {
 
 	logrus.Infof("Found feed '%s'", feed.Title)
 
-	if len(feed.Item) > 0 {
-		r.lastGUID = feed.Item[0].GUID
-	}
+	r.CacheItems(feed.Item)
 
 	for {
 		metrics.PullsTotalCounter.Inc()
 		metrics.PullsTotalCounters[r.Type].Inc()
+
 		feed, err = rss.Read(r.Endpoint)
 		if err != nil {
 			metrics.PullsFailCounter.Inc()
@@ -59,8 +91,7 @@ func (r *RssAgent) Start(sender bot.WeburgBot) error {
 			continue
 		}
 
-		err = r.itemHandler(feed.Item)
-		if err != nil {
+		if err := r.itemHandler(feed.Item); err != nil {
 			logrus.Errorf("Error with %s: %+v", r.Endpoint, err)
 		}
 
@@ -71,28 +102,49 @@ func (r *RssAgent) Start(sender bot.WeburgBot) error {
 }
 
 func (r *RssAgent) itemHandler(items []rss.Item) error {
+	var checks int
+	var changed bool
+
 	logrus.Debugf("Got %d items in '%s' channel", len(items), r.Type)
 
-	if len(items) == 0 || r.first == true {
+	if len(items) == 0 || r.firstPoll == true {
 		logrus.Debugf("Skipping update in '%s' channel", r.Type)
-		r.first = false
+		r.firstPoll = false
 		return nil
 	}
 
-	item := items[0]
-	if r.CanPost(item) != true {
-		return nil
+	for _, item := range items {
+		if checks == r.CacheSize {
+			break
+		}
+		if r.CanPost(item) == true {
+			changed = true
+			if err := r.Notify(item); err != nil {
+				logrus.Error(err)
+			}
+		}
+		checks++
 	}
 
-	r.lastGUID = item.GUID
+	if changed {
+		r.CacheItems(items)
+	}
 
+	return nil
+}
+
+func (r *RssAgent) Notify(item rss.Item) error {
 	logrus.Infof("Send '%s' to %s channel", item.Title, r.Type)
+
 	metrics.MessagesTotalCounter.Inc()
 	metrics.MessagesTotalCounters[r.Type].Inc()
+
 	if err := r.Sender.SendMessage(r.Channel, item.Title+"\n\n"+item.Link); err != nil {
 		metrics.MessagesFailCounter.Inc()
 		metrics.MessagesFailCounters[r.Type].Inc()
+
 		return err
 	}
+
 	return nil
 }
