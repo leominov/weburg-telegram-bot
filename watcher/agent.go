@@ -149,7 +149,7 @@ func (a *Agent) Start(telegram Telegram) error {
 			continue
 		}
 
-		if err := a.itemHandler(feed.Item); err != nil {
+		if err := a.Process(feed.Item); err != nil {
 			logrus.Errorf("Error with %s: %+v", a.Endpoint, err)
 		}
 
@@ -159,7 +159,7 @@ func (a *Agent) Start(telegram Telegram) error {
 	return nil
 }
 
-func (a *Agent) itemHandler(items []rss.Item) error {
+func (a *Agent) Process(items []rss.Item) error {
 	var checks int
 	var changed bool
 
