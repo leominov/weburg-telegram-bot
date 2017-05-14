@@ -64,7 +64,7 @@ func (a *Agent) CacheItems(items []rss.Item) error {
 		a.lastGuids = append(a.lastGuids, item.GUID)
 	}
 
-	logrus.Debugf("Update cached '%s' GUIDs list (max.: %d): %s", a.Type, a.CacheSize, strings.Join(a.lastGuids, ", "))
+	logrus.Debugf("Update cached '%s' GUID list (max.: %d): %s", a.Type, a.CacheSize, strings.Join(a.lastGuids, ", "))
 
 	return nil
 }

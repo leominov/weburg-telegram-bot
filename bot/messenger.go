@@ -17,7 +17,7 @@ func (m *Messenger) Authorize() error {
 		return err
 	}
 
-	logrus.Info("Authorized as ", bot.Identity.Username)
+	logrus.Infof("Authorized as %s", bot.Identity.Username)
 
 	m.b = bot
 
