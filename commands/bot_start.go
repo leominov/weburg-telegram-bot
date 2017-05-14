@@ -54,7 +54,7 @@ var BotStartCommand = cli.Command{
 
 		b := bot.New(config)
 		if err := b.Setup(); err != nil {
-			logrus.Fatalf("%+v", err)
+			logrus.Fatal(err)
 		}
 
 		if !b.Config.Watch {
@@ -62,6 +62,8 @@ var BotStartCommand = cli.Command{
 			return
 		}
 
-		b.Start()
+		if err := b.Start(); err != nil {
+			logrus.Fatal(err)
+		}
 	},
 }
