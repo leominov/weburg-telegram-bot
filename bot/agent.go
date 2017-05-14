@@ -21,7 +21,7 @@ type Agent struct {
 	Endpoint       string
 	Interval       time.Duration
 	CetegoryFilter []string
-	Telegram       Telegram
+	Telegram       *Telegram
 	Channel        telebot.Chat
 	CacheSize      int
 
@@ -69,7 +69,7 @@ func (a *Agent) CacheItems(items []rss.Item) error {
 	return nil
 }
 
-func (a *Agent) Start(telegram Telegram) error {
+func (a *Agent) Start(telegram *Telegram) error {
 	a.firstPoll = true
 	a.Telegram = telegram
 	a.lastGuids = []string{}

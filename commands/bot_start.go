@@ -50,6 +50,8 @@ var BotStartCommand = cli.Command{
 			MetricsPath: c.String("metrics-path"),
 		}
 
+		logrus.Infof("Starting %s %s...", c.App.Name, c.App.Version)
+
 		b := bot.New(config)
 		if err := b.Setup(); err != nil {
 			logrus.Fatalf("%+v", err)

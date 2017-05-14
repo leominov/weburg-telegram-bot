@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/leominov/weburg-telegram-bot/metrics"
@@ -15,7 +16,7 @@ type Config struct {
 
 type Bot struct {
 	Config       Config
-	t            Telegram
+	t            *Telegram
 	isConfigured bool
 }
 
@@ -29,7 +30,7 @@ func New(c Config) *Bot {
 func (b *Bot) Setup() error {
 	metrics.InitMetrics()
 
-	telegram := Telegram{
+	telegram := &Telegram{
 		Token: b.Config.Token,
 	}
 
@@ -44,9 +45,13 @@ func (b *Bot) Setup() error {
 	return nil
 }
 
-func (b *Bot) Start() {
+func (b *Bot) Start() error {
 	var wg sync.WaitGroup
 	var totalAgents int
+
+	if !b.isConfigured {
+		return errors.New("Must be configured before start")
+	}
 
 	go metrics.ServeMetrics(b.Config.ListenAddr, b.Config.MetricsPath)
 
@@ -61,4 +66,6 @@ func (b *Bot) Start() {
 	}
 
 	wg.Wait()
+
+	return nil
 }
