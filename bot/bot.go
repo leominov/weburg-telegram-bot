@@ -15,9 +15,9 @@ type Config struct {
 }
 
 type Bot struct {
-	Config       Config
 	t            *Telegram
 	isConfigured bool
+	Config       Config
 }
 
 func New(c Config) *Bot {

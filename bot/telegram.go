@@ -8,8 +8,7 @@ import (
 type Telegram struct {
 	b *telebot.Bot
 
-	Token   string
-	Channel string
+	Token string
 }
 
 func (t *Telegram) Authorize() error {
