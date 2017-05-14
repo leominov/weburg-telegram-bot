@@ -1,6 +1,10 @@
 package bot
 
-import "github.com/leominov/weburg-telegram-bot/metrics"
+import (
+	"sync"
+
+	"github.com/leominov/weburg-telegram-bot/metrics"
+)
 
 type Config struct {
 	Token       string `json:"token"`
@@ -11,7 +15,7 @@ type Config struct {
 
 type Bot struct {
 	Config       Config
-	w            Watcher
+	t            Telegram
 	isConfigured bool
 }
 
@@ -33,11 +37,7 @@ func (b *Bot) Setup() error {
 		return err
 	}
 
-	watcher := Watcher{
-		Telegram: telegram,
-	}
-
-	b.w = watcher
+	b.t = telegram
 
 	b.isConfigured = true
 
@@ -45,6 +45,20 @@ func (b *Bot) Setup() error {
 }
 
 func (b *Bot) Start() {
+	var wg sync.WaitGroup
+	var totalAgents int
+
 	go metrics.ServeMetrics(b.Config.ListenAddr, b.Config.MetricsPath)
-	b.w.Start()
+
+	totalAgents = len(AgentsCollection)
+	wg.Add(totalAgents)
+
+	for i := 0; i <= totalAgents-1; i++ {
+		go func(i int) {
+			AgentsCollection[i].Start(b.t)
+			wg.Done()
+		}(i)
+	}
+
+	wg.Wait()
 }
