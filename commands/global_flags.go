@@ -6,6 +6,11 @@ import (
 	"github.com/oleiade/reflections"
 )
 
+type GlobalFlagsConfig struct {
+	Debug   bool
+	NoColor bool
+}
+
 var DebugFlag = cli.BoolFlag{
 	Name:   "debug, d",
 	Usage:  "Enable debug mode",

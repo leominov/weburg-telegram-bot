@@ -1,21 +1,11 @@
 package commands
 
 import (
-	"github.com/leominov/weburg-telegram-bot/metrics"
-	"github.com/leominov/weburg-telegram-bot/watcher"
-
 	"github.com/Sirupsen/logrus"
+	"github.com/leominov/weburg-telegram-bot/bot"
+
 	"github.com/codegangsta/cli"
 )
-
-type StartCommandConfig struct {
-	Token       string
-	Watch       bool
-	Debug       bool
-	NoColor     bool
-	ListenAddr  string
-	MetricsPath string
-}
 
 var BotStartCommand = cli.Command{
 	Name:  "start",
@@ -48,32 +38,28 @@ var BotStartCommand = cli.Command{
 		NoColorFlag,
 	},
 	Action: func(c *cli.Context) {
-		cfg := StartCommandConfig{
+		HandleGlobalFlags(GlobalFlagsConfig{
+			Debug:   c.Bool("debug"),
+			NoColor: c.Bool("no-color"),
+		})
+
+		config := bot.Config{
 			Token:       c.String("token"),
 			Watch:       c.Bool("watch"),
-			Debug:       c.Bool("debug"),
-			NoColor:     c.Bool("no-color"),
 			ListenAddr:  c.String("listen-address"),
 			MetricsPath: c.String("metrics-path"),
 		}
 
-		HandleGlobalFlags(cfg)
-
-		w := watcher.Watcher{watcher.Telegram{
-			Token: cfg.Token,
-		}}
-
-		if err := w.Telegram.Authorize(); err != nil {
+		b := bot.New(config)
+		if err := b.Setup(); err != nil {
 			logrus.Fatalf("%+v", err)
 		}
 
-		if cfg.Watch {
-			go w.Start()
-			metrics.ServeMetrics(cfg.ListenAddr, cfg.MetricsPath)
+		if !b.Config.Watch {
+			logrus.Printf("Configuration: %+v", b.Config)
+			return
 		}
-	},
-}
 
-func init() {
-	metrics.InitMetrics()
+		b.Start()
+	},
 }

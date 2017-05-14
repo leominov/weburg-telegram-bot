@@ -1,4 +1,4 @@
-package watcher
+package bot
 
 import (
 	"github.com/Sirupsen/logrus"
