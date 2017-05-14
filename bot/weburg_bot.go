@@ -15,7 +15,7 @@ type WeburgBot struct {
 	StartTime time.Time
 }
 
-func (w *WeburgBot) Start() error {
+func (w *WeburgBot) Authorize() error {
 	wbot, err := telebot.NewBot(w.Token)
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func (w *WeburgBot) Start() error {
 	return nil
 }
 
-func (w *WeburgBot) SendMessage(c telebot.Chat, message string) error {
+func (w *WeburgBot) Send(c telebot.Chat, message string) error {
 	logrus.WithField("channel", c.Username).Debug(message)
 	return w.b.SendMessage(c, message, nil)
 }

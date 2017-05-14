@@ -64,7 +64,7 @@ var BotStartCommand = cli.Command{
 			Token: cfg.Token,
 		}
 
-		if err := bot.Start(); err != nil {
+		if err := bot.Authorize(); err != nil {
 			logrus.Fatalf("%+v", err)
 		}
 

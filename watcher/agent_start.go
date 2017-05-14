@@ -139,7 +139,7 @@ func (r *RssAgent) Notify(item rss.Item) error {
 	metrics.MessagesTotalCounter.Inc()
 	metrics.MessagesTotalCounters[r.Type].Inc()
 
-	if err := r.Sender.SendMessage(r.Channel, item.Title+"\n\n"+item.Link); err != nil {
+	if err := r.Sender.Send(r.Channel, item.Title+"\n\n"+item.Link); err != nil {
 		metrics.MessagesFailCounter.Inc()
 		metrics.MessagesFailCounters[r.Type].Inc()
 
