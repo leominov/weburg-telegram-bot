@@ -46,7 +46,6 @@ func (b *Bot) Setup() error {
 
 func (b *Bot) Start() error {
 	var wg sync.WaitGroup
-	var totalAgents int
 
 	if !b.isConfigured {
 		return errors.New("Must be configured before start")
@@ -54,7 +53,7 @@ func (b *Bot) Start() error {
 
 	go metrics.ServeMetrics(b.Config.ListenAddr, b.Config.MetricsPath)
 
-	totalAgents = len(AgentsCollection)
+	totalAgents := len(AgentsCollection)
 	wg.Add(totalAgents)
 
 	for i := 0; i <= totalAgents-1; i++ {
