@@ -17,9 +17,10 @@ const (
 	DefaultCacheSize              = 1
 	MessageTemplate               = "%s\n\n%s"
 	MessageWithCategoriesTemplate = "%s\n%s\n\n%s"
+	HashtagTemplate               = "#%s"
 )
 
-var hashCleaner = strings.NewReplacer(" ", "_", "-", "_")
+var hashCleaner = strings.NewReplacer(" ", "_", "-", "_", "+", "")
 
 type Agent struct {
 	Type            string
@@ -179,7 +180,7 @@ func (a *Agent) Notify(item rss.Item) error {
 	if a.PrintCategories && len(item.Category) != 0 {
 		tmpCat := []string{}
 		for _, category := range item.Category {
-			tmpCat = append(tmpCat, fmt.Sprintf("#%s", hashCleaner.Replace(category)))
+			tmpCat = append(tmpCat, fmt.Sprintf(HashtagTemplate, hashCleaner.Replace(category)))
 		}
 		message = fmt.Sprintf(
 			MessageWithCategoriesTemplate,
