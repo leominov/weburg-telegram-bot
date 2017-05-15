@@ -18,6 +18,7 @@ $ ./bin/weburg-telegram-bot start -w
 --no-color, --nc Отключение цветов в логах [$WEBURG_BOT_NO_COLOR]
 --listen-address Адрес для веб-интерфейса и телеметрии [$WEBURG_BOT_LISTEN_ADDR]
 --metrics-path   Путь, по которому будут доступны метрики [$WEBURG_BOT_METRICS_PATH]
+--database-path  Путь к файлу базы данных [$WEBURG_BOT_DATABASE_PATH]
 ```
 
 ## Метрики
