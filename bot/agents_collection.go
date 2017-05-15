@@ -16,7 +16,8 @@ var (
 				Type:     "channel",
 				Username: "weburg_movies",
 			},
-			CacheSize: 3,
+			CacheSize:       3,
+			PrintCategories: true,
 		},
 		Agent{
 			Type:     "music",
@@ -26,7 +27,8 @@ var (
 				Type:     "channel",
 				Username: "weburg_music",
 			},
-			CacheSize: 3,
+			CacheSize:       3,
+			PrintCategories: true,
 		},
 		Agent{
 			Type:     "news",
@@ -36,7 +38,8 @@ var (
 				Type:     "channel",
 				Username: "weburg_times",
 			},
-			CacheSize: 10,
+			CacheSize:       10,
+			PrintCategories: true,
 		},
 		Agent{
 			Type:     "series",
@@ -46,7 +49,8 @@ var (
 				Type:     "channel",
 				Username: "weburg_series",
 			},
-			CacheSize: 2,
+			CacheSize:       2,
+			PrintCategories: true,
 		},
 	}
 )

@@ -2,6 +2,7 @@ package bot
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -13,19 +14,24 @@ import (
 )
 
 const (
-	DefaultCacheSize = 1
+	DefaultCacheSize              = 1
+	MessageTemplate               = "%s\n\n%s"
+	MessageWithCategoriesTemplate = "%s\n%s\n\n%s"
 )
 
+var hashCleaner = strings.NewReplacer(" ", "_", "-", "_")
+
 type Agent struct {
-	Type           string
-	Endpoint       string
-	Interval       time.Duration
-	CategoryFilter []string
-	Channel        telebot.Chat
-	CacheSize      int
-	messenger      *Messenger
-	firstPoll      bool
-	lastGuids      []string
+	Type            string
+	Endpoint        string
+	Interval        time.Duration
+	CategoryFilter  []string
+	Channel         telebot.Chat
+	CacheSize       int
+	PrintCategories bool
+	messenger       *Messenger
+	firstPoll       bool
+	lastGuids       []string
 }
 
 func (a *Agent) CanPost(item rss.Item) bool {
@@ -146,12 +152,32 @@ func (a *Agent) Process(items []rss.Item) error {
 }
 
 func (a *Agent) Notify(item rss.Item) error {
+	var message string
 	logrus.Infof("Send '%s' to %s channel", item.Title, a.Type)
 
 	metrics.MessagesTotalCounter.Inc()
 	metrics.MessagesTotalCounters[a.Type].Inc()
 
-	if err := a.messenger.Send(a.Channel, item.Title+"\n\n"+item.Link); err != nil {
+	if a.PrintCategories && len(item.Category) != 0 {
+		tmpCat := []string{}
+		for _, category := range item.Category {
+			tmpCat = append(tmpCat, fmt.Sprintf("#%s", hashCleaner.Replace(category)))
+		}
+		message = fmt.Sprintf(
+			MessageWithCategoriesTemplate,
+			item.Title,
+			strings.Join(tmpCat, " "),
+			item.Link,
+		)
+	} else {
+		message = fmt.Sprintf(
+			MessageTemplate,
+			item.Title,
+			item.Link,
+		)
+	}
+
+	if err := a.messenger.Send(a.Channel, message); err != nil {
 		metrics.MessagesFailCounter.Inc()
 		metrics.MessagesFailCounters[a.Type].Inc()
 
