@@ -6,9 +6,8 @@ import (
 )
 
 type Messenger struct {
-	b *telebot.Bot
-
 	Token string
+	b     *telebot.Bot
 }
 
 func (m *Messenger) Authorize() error {

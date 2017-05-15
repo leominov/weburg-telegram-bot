@@ -20,13 +20,12 @@ type Agent struct {
 	Type           string
 	Endpoint       string
 	Interval       time.Duration
-	CetegoryFilter []string
-	Messenger      *Messenger
+	CategoryFilter []string
 	Channel        telebot.Chat
 	CacheSize      int
-
-	firstPoll bool
-	lastGuids []string
+	messenger      *Messenger
+	firstPoll      bool
+	lastGuids      []string
 }
 
 func (a *Agent) CanPost(item rss.Item) bool {
@@ -36,11 +35,11 @@ func (a *Agent) CanPost(item rss.Item) bool {
 		}
 	}
 
-	if len(a.CetegoryFilter) == 0 {
+	if len(a.CategoryFilter) == 0 {
 		return true
 	}
 
-	for _, filterCategory := range a.CetegoryFilter {
+	for _, filterCategory := range a.CategoryFilter {
 		for _, category := range item.Category {
 			if filterCategory == category {
 				return true
@@ -71,7 +70,7 @@ func (a *Agent) CacheItems(items []rss.Item) error {
 
 func (a *Agent) Start(messenger *Messenger) error {
 	a.firstPoll = true
-	a.Messenger = messenger
+	a.messenger = messenger
 	a.lastGuids = []string{}
 
 	if a.CacheSize == 0 {
@@ -152,7 +151,7 @@ func (a *Agent) Notify(item rss.Item) error {
 	metrics.MessagesTotalCounter.Inc()
 	metrics.MessagesTotalCounters[a.Type].Inc()
 
-	if err := a.Messenger.Send(a.Channel, item.Title+"\n\n"+item.Link); err != nil {
+	if err := a.messenger.Send(a.Channel, item.Title+"\n\n"+item.Link); err != nil {
 		metrics.MessagesFailCounter.Inc()
 		metrics.MessagesFailCounters[a.Type].Inc()
 
