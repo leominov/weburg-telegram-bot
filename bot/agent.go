@@ -75,11 +75,16 @@ func (a *Agent) CacheItems(items []rss.Item) error {
 	return nil
 }
 
-func (a *Agent) Start(messenger *Messenger) error {
-	a.firstPoll = true
+func (a *Agent) Start(messenger *Messenger, state []string) error {
 	a.messenger = messenger
-	a.lastGuids = []string{}
+	a.lastGuids = state
 	a.stopChan = make(chan bool)
+
+	if len(a.lastGuids) == 0 {
+		a.firstPoll = true
+	} else {
+		logrus.Debugf("GUID list for '%s' channel loaded from database (max.: %d): %s", a.Type, a.CacheSize, strings.Join(a.lastGuids, ", "))
+	}
 
 	if a.CacheSize == 0 {
 		a.CacheSize = DefaultCacheSize
@@ -96,7 +101,9 @@ func (a *Agent) Start(messenger *Messenger) error {
 
 	logrus.Infof("Found feed '%s'", feed.Title)
 
-	a.CacheItems(feed.Item)
+	if len(a.lastGuids) == 0 {
+		a.CacheItems(feed.Item)
+	}
 
 	for {
 		metrics.PullsTotalCounter.Inc()

@@ -38,6 +38,12 @@ var StartCommand = cli.Command{
 			Usage:  "Path under which to expose metrics",
 			EnvVar: "WEBURG_BOT_METRICS_PATH",
 		},
+		cli.StringFlag{
+			Name:   "database, db",
+			Value:  "./database.db",
+			Usage:  "Path to database file",
+			EnvVar: "WEBURG_BOT_DATABASE_PATH",
+		},
 		DebugFlag,
 		NoColorFlag,
 	},
@@ -47,11 +53,12 @@ var StartCommand = cli.Command{
 			NoColor: c.Bool("no-color"),
 		})
 
-		config := bot.Config{
-			Token:       c.String("token"),
-			Watch:       c.Bool("watch"),
-			ListenAddr:  c.String("listen-address"),
-			MetricsPath: c.String("metrics-path"),
+		config := &bot.Config{
+			Token:        c.String("token"),
+			Watch:        c.Bool("watch"),
+			ListenAddr:   c.String("listen-address"),
+			MetricsPath:  c.String("metrics-path"),
+			DatabasePath: c.String("database"),
 		}
 
 		logrus.Infof("Starting %s %s...", c.App.Name, c.App.Version)

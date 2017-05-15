@@ -25,5 +25,6 @@ func (m *Messenger) Authorize() error {
 
 func (m *Messenger) Send(c telebot.Chat, message string) error {
 	logrus.WithField("channel", c.Username).Debug(message)
-	return m.b.SendMessage(c, message, nil)
+	// return m.b.SendMessage(c, message, nil)
+	return nil
 }
