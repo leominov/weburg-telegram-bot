@@ -1,4 +1,7 @@
-.PHONY: all
+.PHONY: all run linux
+
+run:
+	@go run main.go start -w -d --disable-messenger
 
 all:
 	@mkdir -p bin/

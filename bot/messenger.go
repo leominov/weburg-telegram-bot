@@ -6,8 +6,9 @@ import (
 )
 
 type Messenger struct {
-	Token string
-	b     *telebot.Bot
+	Token    string
+	Disabled bool
+	b        *telebot.Bot
 }
 
 func (m *Messenger) Authorize() error {
@@ -25,5 +26,8 @@ func (m *Messenger) Authorize() error {
 
 func (m *Messenger) Send(c telebot.Chat, message string) error {
 	logrus.WithField("channel", c.Username).Debug(message)
+	if m.Disabled {
+		return nil
+	}
 	return m.b.SendMessage(c, message, nil)
 }

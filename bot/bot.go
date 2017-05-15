@@ -13,11 +13,12 @@ import (
 var StateBucket = []byte("statev1")
 
 type Config struct {
-	Token        string `json:"token"`
-	Watch        bool   `json:"watch"`
-	ListenAddr   string `json:"listen_addr"`
-	MetricsPath  string `json:"metrics_path"`
-	DatabasePath string `json:"database_path"`
+	Token            string `json:"token"`
+	Watch            bool   `json:"watch"`
+	ListenAddr       string `json:"listen_addr"`
+	MetricsPath      string `json:"metrics_path"`
+	DatabasePath     string `json:"database_path"`
+	DisableMessenger bool   `json:"disable_messenger"`
 }
 
 type Bot struct {
@@ -42,7 +43,8 @@ func (b *Bot) Setup() error {
 	metrics.InitMetrics()
 
 	messenger := &Messenger{
-		Token: b.Config.Token,
+		Token:    b.Config.Token,
+		Disabled: b.Config.DisableMessenger,
 	}
 
 	b.m = messenger

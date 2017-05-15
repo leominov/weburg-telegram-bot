@@ -44,6 +44,11 @@ var StartCommand = cli.Command{
 			Usage:  "Path to database file",
 			EnvVar: "WEBURG_BOT_DATABASE_PATH",
 		},
+		cli.BoolFlag{
+			Name:   "disable-messenger",
+			Usage:  "Disable sending messages",
+			EnvVar: "WEBURG_BOT_DISABLE_MESSENGER",
+		},
 		DebugFlag,
 		NoColorFlag,
 	},
@@ -54,14 +59,16 @@ var StartCommand = cli.Command{
 		})
 
 		config := &bot.Config{
-			Token:        c.String("token"),
-			Watch:        c.Bool("watch"),
-			ListenAddr:   c.String("listen-address"),
-			MetricsPath:  c.String("metrics-path"),
-			DatabasePath: c.String("database"),
+			Token:            c.String("token"),
+			Watch:            c.Bool("watch"),
+			ListenAddr:       c.String("listen-address"),
+			MetricsPath:      c.String("metrics-path"),
+			DatabasePath:     c.String("database"),
+			DisableMessenger: c.Bool("disable-messenger"),
 		}
 
 		logrus.Infof("Starting %s %s...", c.App.Name, c.App.Version)
+		logrus.Infof("Messenger disabled: %v", config.DisableMessenger)
 
 		b := bot.New(config)
 		if err := b.Setup(); err != nil {
