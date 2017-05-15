@@ -15,15 +15,19 @@ type Config struct {
 }
 
 type Bot struct {
+	Config       Config
 	m            *Messenger
 	isConfigured bool
-	Config       Config
+	stopChan     chan bool
+	doneChan     chan bool
 }
 
 func New(c Config) *Bot {
 	return &Bot{
 		Config:       c,
 		isConfigured: false,
+		stopChan:     make(chan bool),
+		doneChan:     make(chan bool),
 	}
 }
 
@@ -65,5 +69,16 @@ func (b *Bot) Start() error {
 
 	wg.Wait()
 
+	// Waiting for complete stop
+	<-b.doneChan
+
+	return nil
+}
+
+func (b *Bot) Stop() error {
+	for _, agent := range AgentsCollection {
+		agent.Stop()
+	}
+	close(b.doneChan)
 	return nil
 }

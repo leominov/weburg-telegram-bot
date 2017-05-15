@@ -1,6 +1,10 @@
 package commands
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/leominov/weburg-telegram-bot/bot"
 
@@ -62,8 +66,29 @@ var StartCommand = cli.Command{
 			return
 		}
 
-		if err := b.Start(); err != nil {
-			logrus.Fatal(err)
+		errChan := make(chan error, 10)
+
+		go func() {
+			errChan <- b.Start()
+		}()
+
+		signalChan := make(chan os.Signal, 1)
+		signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+
+		for {
+			select {
+			case err := <-errChan:
+				if err != nil {
+					logrus.Fatal(err)
+				}
+			case signal := <-signalChan:
+				logrus.Printf("Captured %v. Exiting...", signal)
+				if err := b.Stop(); err != nil {
+					logrus.Fatal(err)
+				}
+				logrus.Print("Bye")
+				os.Exit(0)
+			}
 		}
 	},
 }

@@ -32,6 +32,7 @@ type Agent struct {
 	messenger       *Messenger
 	firstPoll       bool
 	lastGuids       []string
+	stopChan        chan bool
 }
 
 func (a *Agent) CanPost(item rss.Item) bool {
@@ -78,6 +79,7 @@ func (a *Agent) Start(messenger *Messenger) error {
 	a.firstPoll = true
 	a.messenger = messenger
 	a.lastGuids = []string{}
+	a.stopChan = make(chan bool)
 
 	if a.CacheSize == 0 {
 		a.CacheSize = DefaultCacheSize
@@ -113,10 +115,19 @@ func (a *Agent) Start(messenger *Messenger) error {
 			logrus.Errorf("Error with %s: %+v", a.Endpoint, err)
 		}
 
-		<-time.After(a.Interval)
+		select {
+		case <-a.stopChan:
+			break
+		case <-time.After(a.Interval):
+			continue
+		}
 	}
 
 	return nil
+}
+
+func (a *Agent) Stop() {
+	close(a.stopChan)
 }
 
 func (a *Agent) Process(items []rss.Item) error {
