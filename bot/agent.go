@@ -23,17 +23,42 @@ const (
 var hashCleaner = strings.NewReplacer(" ", "_", "-", "_", "+", "")
 
 type Agent struct {
-	Type            string
-	Endpoint        string
-	Interval        time.Duration
-	CategoryFilter  []string
-	Channel         telebot.Chat
-	CacheSize       int
-	PrintCategories bool
-	messenger       *Messenger
-	firstPoll       bool
-	lastGuids       []string
-	stopChan        chan bool
+	Type             string
+	Endpoint         string
+	FilterCategories []string
+	SkipCategories   []string
+	PrintCategories  bool
+	Interval         time.Duration
+	Channel          telebot.Chat
+	CacheSize        int
+	messenger        *Messenger
+	firstPoll        bool
+	lastGuids        []string
+	stopChan         chan bool
+}
+
+func (a *Agent) ClearCategories(l []string) []string {
+	var result []string
+	if len(a.SkipCategories) == 0 {
+		return l
+	}
+	for _, b := range l {
+		ina := false
+		for _, c := range a.SkipCategories {
+			if b == c {
+				logrus.Infof("%s = %s", b, c)
+				ina = true
+			}
+		}
+		if !ina {
+			result = append(result, b)
+		}
+	}
+	return result
+}
+
+func (a *Agent) FormatCategoryName(name string) string {
+	return fmt.Sprintf(HashtagTemplate, hashCleaner.Replace(name))
 }
 
 func (a *Agent) CanPost(item rss.Item) bool {
@@ -43,11 +68,11 @@ func (a *Agent) CanPost(item rss.Item) bool {
 		}
 	}
 
-	if len(a.CategoryFilter) == 0 {
+	if len(a.FilterCategories) == 0 {
 		return true
 	}
 
-	for _, filterCategory := range a.CategoryFilter {
+	for _, filterCategory := range a.FilterCategories {
 		for _, category := range item.Category {
 			if filterCategory == category {
 				return true
@@ -178,9 +203,10 @@ func (a *Agent) Notify(item rss.Item) error {
 	metrics.MessagesTotalCounters[a.Type].Inc()
 
 	if a.PrintCategories && len(item.Category) != 0 {
+		cleanedCategories := a.ClearCategories(item.Category)
 		tmpCat := []string{}
-		for _, category := range item.Category {
-			tmpCat = append(tmpCat, fmt.Sprintf(HashtagTemplate, hashCleaner.Replace(category)))
+		for _, category := range cleanedCategories {
+			tmpCat = append(tmpCat, a.FormatCategoryName(category))
 		}
 		message = fmt.Sprintf(
 			MessageWithCategoriesTemplate,
@@ -199,7 +225,6 @@ func (a *Agent) Notify(item rss.Item) error {
 	if err := a.messenger.Send(a.Channel, message); err != nil {
 		metrics.MessagesFailCounter.Inc()
 		metrics.MessagesFailCounters[a.Type].Inc()
-
 		return err
 	}
 
