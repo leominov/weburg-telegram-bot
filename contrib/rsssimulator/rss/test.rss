@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Weburg: последние обновления каталога кино</title>
+    <description>Последние обновления в каталоге информационно-развлекательного портала Weburg</description>
+    <link>http://weburg.net</link>
+    <language>ru-RU</language>
+    <pubDate>Sun, 14 May 2017 20:16:49 +0500</pubDate>
+    <lastBuildDate>Sun, 14 May 2017 20:16:49 +0500</lastBuildDate>
+    <generator>weburg.net</generator>
+    <copyright>© Weburg</copyright>
+    <managingEditor>support@weburg.ru</managingEditor>
+    <ttl>120</ttl>
+    <item>
+      <title>«Не плачь, я вернусь»: военные истории наших бабушек и дедушек</title>
+      <guid isPermaLink="true">http://weburg.net/news/55708</guid>
+      <link>http://weburg.net/news/55708</link>
+      <description><![CDATA[<img src='http://gl.weburg.net/00/news/12/55708/original/7442235.jpg' align='left' hspace='5' border='0' /> Нет в России семьи такой, где б не памятен был свой герой.]]></description>
+      <pubDate>Tue, 09 May 2017 11:00:00 +0500</pubDate>
+    </item>
+    <item>
+      <title>Видеоколлекция: свежие фильмы о войне</title>
+      <guid isPermaLink="true">http://weburg.net/news/55707</guid>
+      <link>http://weburg.net/news/55707</link>
+      <description><![CDATA[<img src='http://gl.weburg.net/00/news/12/55707/original/7442221.jpg' align='left' hspace='5' border='0' /> Что смотреть в длинные выходные.]]></description>
+      <pubDate>Mon, 08 May 2017 11:00:00 +0500</pubDate>
+      <category>Кино</category>
+      <category>Ксения Митина</category>
+    </item>
+    <item>
+      <title>Cranberries — Something Else — 2017</title>
+      <guid isPermaLink="true">http://weburg.net/music/album/200655</guid>
+      <link>http://weburg.net/music/album/200655</link>
+      <pubDate>Sat, 29 Apr 2017 21:51:24 +0500</pubDate>
+      <category>Rock</category>
+      <category>Alternative Rock</category>
+      <category>Pop Rock</category>
+      <category>Acoustic</category>
+    </item>
+    <item>
+      <title>Aaron Keylock — Cut Against The Grain — 2017</title>
+      <guid isPermaLink="true">http://weburg.net/music/album/200654</guid>
+      <link>http://weburg.net/music/album/200654</link>
+      <pubDate>Fri, 28 Apr 2017 10:50:38 +0500</pubDate>
+      <category>Blues</category>
+      <category>Blues-Rock</category>
+    </item>
+    <item>
+      <title>Стэлс-истребитель Гитлера / Hitler's Stealth Fighter / 2009</title>
+      <guid isPermaLink="true">http://weburg.net/movies/info/29500</guid>
+      <link>http://weburg.net/movies/info/29500</link>
+      <pubDate>Sat, 13 May 2017 18:35:44 +0500</pubDate>
+      <category>Документальный</category>
+      <category>Военный</category>
+      <category>Исторический</category>
+    </item>
+    <item>
+      <title>Основатель / The Founder / 2016</title>
+      <guid isPermaLink="true">http://weburg.net/movies/info/29495</guid>
+      <link>http://weburg.net/movies/info/29495</link>
+      <pubDate>Sat, 13 May 2017 22:22:00 +0500</pubDate>
+      <category>Драма</category>
+      <category>Биография</category>
+    </item>
+    <item>
+      <title>Жена смотрителя зоопарка / The Zookeeper's Wife / 2017</title>
+      <guid isPermaLink="true">http://weburg.net/movies/info/29264</guid>
+      <link>http://weburg.net/movies/info/29264</link>
+      <pubDate>Sun, 14 May 2017 22:22:00 +0500</pubDate>
+      <category>Драма</category>
+      <category>Военный</category>
+      <category>Биография</category>
+    </item>
+    <item>
+      <title>Гуляй, Вася! / 2017</title>
+      <guid isPermaLink="true">http://weburg.net/movies/info/28933</guid>
+      <link>http://weburg.net/movies/info/28933</link>
+      <pubDate>Sun, 14 May 2017 22:14:00 +0500</pubDate>
+      <category>Комедия</category>
+    </item>
+    <item>
+      <title>Арес / Ares / 2016</title>
+      <guid isPermaLink="true">http://weburg.net/movies/info/29497</guid>
+      <link>http://weburg.net/movies/info/29497</link>
+      <pubDate>Sat, 13 May 2017 22:12:00 +0500</pubDate>
+      <category>Фантастика</category>
+      <category>Триллер</category>
+      <category>Драма</category>
+    </item>
+    <item>
+      <title>Гончие любви / Hounds of Love / 2016</title>
+      <guid isPermaLink="true">http://weburg.net/movies/info/29496</guid>
+      <link>http://weburg.net/movies/info/29496</link>
+      <pubDate>Sat, 13 May 2017 14:28:33 +0500</pubDate>
+      <category>Триллер</category>
+      <category>Драма</category>
+      <category>Криминал</category>
+    </item>
+  </channel>
+</rss>

@@ -28,19 +28,16 @@ var StartCommand = cli.Command{
 		},
 		cli.StringFlag{
 			Name:   "listen-address",
-			Value:  ":9109",
 			Usage:  "Address to listen on for web interface and telemetry",
 			EnvVar: "WEBURG_BOT_LISTEN_ADDR",
 		},
 		cli.StringFlag{
 			Name:   "metrics-path",
-			Value:  "/metrics",
 			Usage:  "Path under which to expose metrics",
 			EnvVar: "WEBURG_BOT_METRICS_PATH",
 		},
 		cli.StringFlag{
 			Name:   "database, db",
-			Value:  "./database.db",
 			Usage:  "Path to database file",
 			EnvVar: "WEBURG_BOT_DATABASE_PATH",
 		},
@@ -48,6 +45,12 @@ var StartCommand = cli.Command{
 			Name:   "disable-messenger",
 			Usage:  "Disable sending messages",
 			EnvVar: "WEBURG_BOT_DISABLE_MESSENGER",
+		},
+		cli.StringFlag{
+			Name:   "config-file",
+			Value:  "./config.yaml",
+			Usage:  "Configuration file",
+			EnvVar: "WEBURG_BOT_CONFIG_FILE",
 		},
 		DebugFlag,
 		NoColorFlag,
@@ -58,17 +61,20 @@ var StartCommand = cli.Command{
 			NoColor: c.Bool("no-color"),
 		})
 
-		config := &bot.Config{
-			Token:            c.String("token"),
-			Watch:            c.Bool("watch"),
-			ListenAddr:       c.String("listen-address"),
-			MetricsPath:      c.String("metrics-path"),
-			DatabasePath:     c.String("database"),
-			DisableMessenger: c.Bool("disable-messenger"),
+		logrus.Infof("Starting %s %s...", c.App.Name, c.App.Version)
+
+		config := bot.NewConfig()
+		if len(c.String("config-file")) != 0 {
+			logrus.Infof("Loading configuration from file '%s'...", c.String("config-file"))
+			if err := config.LoadFromFile(c.String("config-file")); err != nil {
+				logrus.Fatal(err)
+			}
 		}
 
-		logrus.Infof("Starting %s %s...", c.App.Name, c.App.Version)
+		config.LoadFromContext(c)
+
 		logrus.Infof("Messenger disabled: %v", config.DisableMessenger)
+		logrus.Debugf("Configuration: %s", config.ToString())
 
 		b := bot.New(config)
 		if err := b.Setup(); err != nil {

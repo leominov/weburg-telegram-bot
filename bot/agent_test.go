@@ -50,6 +50,11 @@ func TestClearCategories(t *testing.T) {
 			[]string{},
 			2,
 		},
+		{
+			[]string{},
+			[]string{"skipped1", "skipped2"},
+			0,
+		},
 	}
 	for i, tt := range tests {
 		a := Agent{

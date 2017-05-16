@@ -9,17 +9,41 @@ $ make
 $ ./bin/weburg-telegram-bot start -w
 ```
 
-## Параметры
+## Параметры запуска
 
 ```
---token, -t      Telegram API токен [$WEBURG_BOT_TOKEN]
---watch, -w      Запустить в режиме демона [$WEBURG_BOT_WATCH]
---debug, -d      Режим отладки [$WEBURG_BOT_DEBUG]
---no-color, --nc Отключение цветов в логах [$WEBURG_BOT_NO_COLOR]
---listen-address Адрес для веб-интерфейса и телеметрии [$WEBURG_BOT_LISTEN_ADDR]
---metrics-path   Путь, по которому будут доступны метрики [$WEBURG_BOT_METRICS_PATH]
---database-path  Путь к файлу базы данных [$WEBURG_BOT_DATABASE_PATH]
+--token, -t      none          Telegram API токен [$WEBURG_BOT_TOKEN]
+--watch, -w      false         Запустить в режиме демона [$WEBURG_BOT_WATCH]
+--debug, -d      false         Режим отладки [$WEBURG_BOT_DEBUG]
+--no-color, -nc  false         Отключение цветов в логах [$WEBURG_BOT_NO_COLOR]
+--listen-address 0.0.0.0:9109  Адрес для веб-интерфейса и телеметрии [$WEBURG_BOT_LISTEN_ADDR]
+--metrics-path   /metrics      Путь, по которому будут доступны метрики [$WEBURG_BOT_METRICS_PATH]
+--database-path  ./database.db Путь к файлу базы данных [$WEBURG_BOT_DATABASE_PATH]
+--config-file    ./config.yaml Путь к файлу конфигурации [$WEBURG_BOT_CONFIG_FILE]
 ```
+
+## Файл конфигурации
+
+```
+---
+token: 123456:1234567890
+watch: true
+listen_addr: 127.0.0.1:9109
+metrics_path: /metrics
+database_path: ./database.db
+disable_messenger: false
+agents:
+  - type: movies
+    endpoint: http://rss.weburg.net/movies/all.rss
+    interval: 1m
+    channel:
+      type: channel
+      username: weburg_movies
+    cache_size: 3
+    print_categories: true
+```
+
+Все значения, за исключением `agents`, могут быть переопределены переменными окружения и параметрами запуска.
 
 ## Метрики
 

@@ -3,22 +3,26 @@ package bot
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"sync"
+
+	"gopkg.in/yaml.v2"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
-	"github.com/leominov/weburg-telegram-bot/metrics"
+	"github.com/codegangsta/cli"
 )
 
 var StateBucket = []byte("statev1")
 
 type Config struct {
-	Token            string `json:"token"`
-	Watch            bool   `json:"watch"`
-	ListenAddr       string `json:"listen_addr"`
-	MetricsPath      string `json:"metrics_path"`
-	DatabasePath     string `json:"database_path"`
-	DisableMessenger bool   `json:"disable_messenger"`
+	Token            string  `yaml:"token" json:"token"`
+	Watch            bool    `yaml:"watch" json:"watch"`
+	ListenAddr       string  `yaml:"listen_addr" json:"listen_addr"`
+	MetricsPath      string  `yaml:"metrics_path" json:"metrics_path"`
+	DatabasePath     string  `yaml:"database_path" json:"database_path"`
+	DisableMessenger bool    `yaml:"disable_messenger" json:"disable_messenger"`
+	Agents           []Agent `yaml:"agents" json:"agents"`
 }
 
 type Bot struct {
@@ -39,8 +43,62 @@ func New(c *Config) *Bot {
 	}
 }
 
+func NewConfig() *Config {
+	return &Config{
+		Watch:            false,
+		ListenAddr:       ":9109",
+		MetricsPath:      "/metrics",
+		DatabasePath:     "./database.db",
+		DisableMessenger: false,
+	}
+}
+
+func (c *Config) LoadFromFile(file string) error {
+	configBytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	if err := yaml.Unmarshal([]byte(configBytes), &c); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Config) LoadFromContext(con *cli.Context) {
+	if len(con.String("token")) != 0 {
+		c.Token = con.String("token")
+	}
+	if con.Bool("watch") == true {
+		c.Watch = con.Bool("watch")
+	}
+	if len(con.String("listen-address")) != 0 {
+		c.ListenAddr = con.String("listen-address")
+	}
+	if len(con.String("metrics-path")) != 0 {
+		c.MetricsPath = con.String("metrics-path")
+	}
+	if len(con.String("database")) != 0 {
+		c.DatabasePath = con.String("database")
+	}
+	if con.Bool("disable-messenger") == true {
+		c.DisableMessenger = con.Bool("disable-messenger")
+	}
+}
+
+func (c *Config) ToString() string {
+	bytes, err := json.Marshal(c)
+	if err != nil {
+		return ""
+	}
+	return string(bytes)
+}
+
 func (b *Bot) Setup() error {
-	metrics.InitMetrics()
+	b.InitMetrics()
+
+	if len(b.Config.Agents) == 0 {
+		return errors.New("Agents list cant be empty")
+	}
 
 	messenger := &Messenger{
 		Token:    b.Config.Token,
@@ -77,18 +135,18 @@ func (b *Bot) Start() error {
 		return errors.New("Must be configured before start")
 	}
 
-	go metrics.ServeMetrics(b.Config.ListenAddr, b.Config.MetricsPath)
+	go b.ServeMetrics()
 
-	totalAgents := len(AgentsCollection)
+	totalAgents := len(b.Config.Agents)
 	wg.Add(totalAgents)
 
 	for i := 0; i <= totalAgents-1; i++ {
 		go func(i int) {
-			state, err := b.RestoreStateFor(AgentsCollection[i].Type)
+			state, err := b.RestoreStateFor(b.Config.Agents[i].Type)
 			if err != nil {
 				state = []string{}
 			}
-			AgentsCollection[i].Start(b.m, state)
+			b.Config.Agents[i].Start(b.m, state)
 			wg.Done()
 		}(i)
 	}
@@ -128,7 +186,7 @@ func (b *Bot) SaveStateFor(agent string, state []string) error {
 }
 
 func (b *Bot) Stop() error {
-	for _, agent := range AgentsCollection {
+	for _, agent := range b.Config.Agents {
 		agent.Stop()
 		if err := b.SaveStateFor(agent.Type, agent.lastGuids); err != nil {
 			logrus.Error(err)

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/leominov/weburg-telegram-bot/metrics"
 
 	"github.com/tucnak/telebot"
 	rss "github.com/ungerik/go-rss"
@@ -23,18 +22,19 @@ const (
 var hashCleaner = strings.NewReplacer(" ", "_", "-", "_", "+", "")
 
 type Agent struct {
-	Type             string
-	Endpoint         string
-	FilterCategories []string
-	SkipCategories   []string
-	PrintCategories  bool
-	Interval         time.Duration
-	Channel          telebot.Chat
-	CacheSize        int
-	messenger        *Messenger
-	firstPoll        bool
-	lastGuids        []string
-	stopChan         chan bool
+	Type             string        `yaml:"type" json:"type"`
+	Endpoint         string        `yaml:"endpoint" json:"endpoint"`
+	FilterCategories []string      `yaml:"filter_categories" json:"filter_categories"`
+	SkipCategories   []string      `yaml:"skip_categories" json:"skip_categories"`
+	PrintCategories  bool          `yaml:"print_categories" json:"print_categories"`
+	Interval         time.Duration `yaml:"interval" json:"interval"`
+	Channel          telebot.Chat  `yaml:"channel" json:"channel"`
+	CacheSize        int           `yaml:"cache_size" json:"cache_size"`
+
+	messenger *Messenger
+	firstPoll bool
+	lastGuids []string
+	stopChan  chan bool
 }
 
 func (a *Agent) ClearCategories(l []string) []string {
@@ -116,12 +116,12 @@ func (a *Agent) Start(messenger *Messenger, state []string) error {
 		a.CacheSize = DefaultCacheSize
 	}
 
-	metrics.PullsTotalCounter.Inc()
-	metrics.PullsTotalCounters[a.Type].Inc()
+	PullsTotalCounter.Inc()
+	PullsTotalCounters[a.Type].Inc()
 	feed, err := rss.Read(a.Endpoint)
 	if err != nil {
-		metrics.PullsFailCounter.Inc()
-		metrics.PullsFailCounters[a.Type].Inc()
+		PullsFailCounter.Inc()
+		PullsFailCounters[a.Type].Inc()
 		return err
 	}
 
@@ -132,13 +132,13 @@ func (a *Agent) Start(messenger *Messenger, state []string) error {
 	}
 
 	for {
-		metrics.PullsTotalCounter.Inc()
-		metrics.PullsTotalCounters[a.Type].Inc()
+		PullsTotalCounter.Inc()
+		PullsTotalCounters[a.Type].Inc()
 
 		feed, err = rss.Read(a.Endpoint)
 		if err != nil {
-			metrics.PullsFailCounter.Inc()
-			metrics.PullsFailCounters[a.Type].Inc()
+			PullsFailCounter.Inc()
+			PullsFailCounters[a.Type].Inc()
 			logrus.Errorf("Error with %s: %+v", a.Endpoint, err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -199,8 +199,8 @@ func (a *Agent) Notify(item rss.Item) error {
 	var message string
 	logrus.Infof("Send '%s' to %s channel", item.Title, a.Type)
 
-	metrics.MessagesTotalCounter.Inc()
-	metrics.MessagesTotalCounters[a.Type].Inc()
+	MessagesTotalCounter.Inc()
+	MessagesTotalCounters[a.Type].Inc()
 
 	if a.PrintCategories && len(item.Category) != 0 {
 		cleanedCategories := a.ClearCategories(item.Category)
@@ -223,8 +223,8 @@ func (a *Agent) Notify(item rss.Item) error {
 	}
 
 	if err := a.messenger.Send(a.Channel, message); err != nil {
-		metrics.MessagesFailCounter.Inc()
-		metrics.MessagesFailCounters[a.Type].Inc()
+		MessagesFailCounter.Inc()
+		MessagesFailCounters[a.Type].Inc()
 		return err
 	}
 

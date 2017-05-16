@@ -21,6 +21,5 @@ _cgo_export.*
 
 database.db
 bin/
-rsssimulator/
 Procfile
 main

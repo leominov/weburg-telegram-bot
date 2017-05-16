@@ -1,7 +1,6 @@
-package metrics
+package bot
 
 import (
-	"gotel/watcher"
 	"net/http"
 
 	"github.com/Sirupsen/logrus"
@@ -41,7 +40,7 @@ var (
 	PullsFailCounters     = map[string]prometheus.Counter{}
 )
 
-func InitMetrics() {
+func (b *Bot) InitMetrics() {
 	prometheus.MustRegister(version.NewCollector(namespace))
 
 	prometheus.MustRegister(MessagesTotalCounter)
@@ -49,7 +48,7 @@ func InitMetrics() {
 	prometheus.MustRegister(PullsTotalCounter)
 	prometheus.MustRegister(PullsFailCounter)
 
-	for _, c := range watcher.RssAgentsCollection {
+	for _, c := range b.Config.Agents {
 		MessagesTotalCounters[c.Type] = prometheus.NewCounter(prometheus.CounterOpts{
 			Name:        prometheus.BuildFQName(namespace, "", "messages_feed_total_count"),
 			Help:        "How many messages are sent",
@@ -77,8 +76,8 @@ func InitMetrics() {
 	}
 }
 
-func ServeMetrics(listenAddr, metricsPath string) {
-	http.Handle(metricsPath, promhttp.Handler())
-	logrus.Infof("Listen address: %s", listenAddr)
-	logrus.Fatal(http.ListenAndServe(listenAddr, nil))
+func (b *Bot) ServeMetrics() {
+	http.Handle(b.Config.MetricsPath, promhttp.Handler())
+	logrus.Infof("Listen address: %s", b.Config.ListenAddr)
+	logrus.Fatal(http.ListenAndServe(b.Config.ListenAddr, nil))
 }
