@@ -51,6 +51,7 @@ var (
 			},
 			CacheSize:       2,
 			PrintCategories: true,
+			SkipCategories:  []string{"Сериал"},
 		},
 	}
 )
