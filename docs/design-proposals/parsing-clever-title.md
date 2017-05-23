@@ -38,6 +38,5 @@ Returns JSON with compiled HTML:
 
 From `.items` we can get:
 
-* Names and links of updated series;
-* Names of uploaded episodes;
-* Series tags.
+* Names, links and tags of updated series;
+* Names of uploaded episodes.
