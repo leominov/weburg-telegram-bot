@@ -1,4 +1,4 @@
-# Parsing Smart title
+# Parsing Clever Title
 
 ## Configuration
 
@@ -6,7 +6,7 @@
 ---
 agents:
   - name: series
-    type: smart_title
+    type: clever_title
     endpoint: http://weburg.net/series/all/?clever_title=1&template=0&last=0&sorts=date_update
     interval: 1m
     channel:
@@ -18,7 +18,13 @@ agents:
       - Сериал
 ```
 
-## Smart title output
+## Requesting
+
+Headers:
+
+* HTTP_X_REQUESTED_WITH=xmlhttprequest
+
+## Output
 
 Returns JSON with compiled HTML:
 
@@ -29,3 +35,9 @@ Returns JSON with compiled HTML:
     "last_element_id": 2
 }
 ```
+
+From `.items` we can get:
+
+* Names and links of updated series;
+* Names of uploaded episodes;
+* Series tags.
