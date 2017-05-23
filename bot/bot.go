@@ -142,11 +142,13 @@ func (b *Bot) Start() error {
 
 	for i := 0; i <= totalAgents-1; i++ {
 		go func(i int) {
-			state, err := b.RestoreStateFor(b.Config.Agents[i].Type)
+			state, err := b.RestoreStateFor(b.Config.Agents[i].Name)
 			if err != nil {
 				state = []string{}
 			}
-			b.Config.Agents[i].Start(b.m, state)
+			if err := b.Config.Agents[i].Start(b.m, state); err != nil {
+				logrus.Error(err)
+			}
 			wg.Done()
 		}(i)
 	}
@@ -188,7 +190,7 @@ func (b *Bot) SaveStateFor(agent string, state []string) error {
 func (b *Bot) Stop() error {
 	for _, agent := range b.Config.Agents {
 		agent.Stop()
-		if err := b.SaveStateFor(agent.Type, agent.lastGuids); err != nil {
+		if err := b.SaveStateFor(agent.Name, agent.lastGuids); err != nil {
 			logrus.Error(err)
 		}
 	}

@@ -9,7 +9,6 @@ import (
 	"github.com/Sirupsen/logrus"
 
 	"github.com/tucnak/telebot"
-	rss "github.com/ungerik/go-rss"
 )
 
 const (
@@ -22,11 +21,12 @@ const (
 var hashCleaner = strings.NewReplacer(" ", "_", "-", "_", "+", "")
 
 type Agent struct {
-	Type             string        `yaml:"type" json:"type"`
-	Endpoint         string        `yaml:"endpoint" json:"endpoint"`
+	Name             string        `yaml:"name" json:"name"`
+	Endpoint         Endpoint      `yaml:"endpoint" json:"endpoint"`
 	FilterCategories []string      `yaml:"filter_categories" json:"filter_categories"`
 	SkipCategories   []string      `yaml:"skip_categories" json:"skip_categories"`
 	PrintCategories  bool          `yaml:"print_categories" json:"print_categories"`
+	PrintDescription bool          `yaml:"print_description" json:"print_description"`
 	Interval         time.Duration `yaml:"interval" json:"interval"`
 	Channel          telebot.Chat  `yaml:"channel" json:"channel"`
 	CacheSize        int           `yaml:"cache_size" json:"cache_size"`
@@ -61,9 +61,9 @@ func (a *Agent) FormatCategoryName(name string) string {
 	return fmt.Sprintf(HashtagTemplate, hashCleaner.Replace(name))
 }
 
-func (a *Agent) CanPost(item rss.Item) bool {
+func (a *Agent) CanPost(item EndpointItem) bool {
 	for _, guid := range a.lastGuids {
-		if item.GUID == guid {
+		if item.ID == guid {
 			return false
 		}
 	}
@@ -73,7 +73,7 @@ func (a *Agent) CanPost(item rss.Item) bool {
 	}
 
 	for _, filterCategory := range a.FilterCategories {
-		for _, category := range item.Category {
+		for _, category := range item.Categories {
 			if filterCategory == category {
 				return true
 			}
@@ -83,7 +83,7 @@ func (a *Agent) CanPost(item rss.Item) bool {
 	return false
 }
 
-func (a *Agent) CacheItems(items []rss.Item) error {
+func (a *Agent) CacheItems(items []EndpointItem) error {
 	if len(items) == 0 {
 		return errors.New("Empty items list")
 	}
@@ -93,10 +93,10 @@ func (a *Agent) CacheItems(items []rss.Item) error {
 		if len(a.lastGuids) == a.CacheSize {
 			break
 		}
-		a.lastGuids = append(a.lastGuids, item.GUID)
+		a.lastGuids = append(a.lastGuids, item.ID)
 	}
 
-	logrus.Debugf("Update cached '%s' GUID list (max.: %d): %s", a.Type, a.CacheSize, strings.Join(a.lastGuids, ", "))
+	logrus.Debugf("Update cached '%s' GUID list (max.: %d): %s", a.Name, a.CacheSize, strings.Join(a.lastGuids, ", "))
 
 	return nil
 }
@@ -109,7 +109,7 @@ func (a *Agent) Start(messenger *Messenger, state []string) error {
 	if len(a.lastGuids) == 0 {
 		a.firstPoll = true
 	} else {
-		logrus.Debugf("GUID list for '%s' channel loaded from database (max.: %d): %s", a.Type, a.CacheSize, strings.Join(a.lastGuids, ", "))
+		logrus.Debugf("GUID list for '%s' channel loaded from database (max.: %d): %s", a.Name, a.CacheSize, strings.Join(a.lastGuids, ", "))
 	}
 
 	if a.CacheSize == 0 {
@@ -117,35 +117,35 @@ func (a *Agent) Start(messenger *Messenger, state []string) error {
 	}
 
 	PullsTotalCounter.Inc()
-	PullsTotalCounters[a.Type].Inc()
-	feed, err := rss.Read(a.Endpoint)
+	PullsTotalCounters[a.Name].Inc()
+	itemList, err := a.Endpoint.Read()
 	if err != nil {
 		PullsFailCounter.Inc()
-		PullsFailCounters[a.Type].Inc()
+		PullsFailCounters[a.Name].Inc()
 		return err
 	}
 
-	logrus.Infof("Found feed '%s'", feed.Title)
+	logrus.Infof("Found feed '%s'", a.Name)
 
 	if len(a.lastGuids) == 0 {
-		a.CacheItems(feed.Item)
+		a.CacheItems(itemList)
 	}
 
 	for {
 		PullsTotalCounter.Inc()
-		PullsTotalCounters[a.Type].Inc()
+		PullsTotalCounters[a.Name].Inc()
 
-		feed, err = rss.Read(a.Endpoint)
+		itemList, err := a.Endpoint.Read()
 		if err != nil {
 			PullsFailCounter.Inc()
-			PullsFailCounters[a.Type].Inc()
-			logrus.Errorf("Error with %s: %+v", a.Endpoint, err)
+			PullsFailCounters[a.Name].Inc()
+			logrus.Errorf("Error with %s: %+v", a.Endpoint.URL, err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
-		if err := a.Process(feed.Item); err != nil {
-			logrus.Errorf("Error with %s: %+v", a.Endpoint, err)
+		if err := a.Process(itemList); err != nil {
+			logrus.Errorf("Error with %s: %+v", a.Endpoint.URL, err)
 		}
 
 		select {
@@ -163,14 +163,14 @@ func (a *Agent) Stop() {
 	close(a.stopChan)
 }
 
-func (a *Agent) Process(items []rss.Item) error {
+func (a *Agent) Process(items []EndpointItem) error {
 	var checks int
 	var changed bool
 
-	logrus.Debugf("Got %d items in '%s' channel", len(items), a.Type)
+	logrus.Debugf("Got %d items in '%s' channel", len(items), a.Name)
 
 	if len(items) == 0 || a.firstPoll == true {
-		logrus.Debugf("Skipping update in '%s' channel", a.Type)
+		logrus.Debugf("Skipping update in '%s' channel", a.Name)
 		a.firstPoll = false
 		return nil
 	}
@@ -195,15 +195,19 @@ func (a *Agent) Process(items []rss.Item) error {
 	return nil
 }
 
-func (a *Agent) Notify(item rss.Item) error {
+func (a *Agent) Notify(item EndpointItem) error {
 	var message string
-	logrus.Infof("Send '%s' to %s channel", item.Title, a.Type)
+	logrus.Infof("Send '%s' to %s channel", item.Title, a.Name)
 
 	MessagesTotalCounter.Inc()
-	MessagesTotalCounters[a.Type].Inc()
+	MessagesTotalCounters[a.Name].Inc()
 
-	if a.PrintCategories && len(item.Category) != 0 {
-		cleanedCategories := a.ClearCategories(item.Category)
+	if a.PrintDescription && len(item.Description) != 0 {
+		item.Title = fmt.Sprintf("%s\n%s", item.Title, item.Description)
+	}
+
+	if a.PrintCategories && len(item.Categories) != 0 {
+		cleanedCategories := a.ClearCategories(item.Categories)
 		tmpCat := []string{}
 		for _, category := range cleanedCategories {
 			tmpCat = append(tmpCat, a.FormatCategoryName(category))
@@ -224,7 +228,7 @@ func (a *Agent) Notify(item rss.Item) error {
 
 	if err := a.messenger.Send(a.Channel, message); err != nil {
 		MessagesFailCounter.Inc()
-		MessagesFailCounters[a.Type].Inc()
+		MessagesFailCounters[a.Name].Inc()
 		return err
 	}
 

@@ -49,30 +49,30 @@ func (b *Bot) InitMetrics() {
 	prometheus.MustRegister(PullsFailCounter)
 
 	for _, c := range b.Config.Agents {
-		MessagesTotalCounters[c.Type] = prometheus.NewCounter(prometheus.CounterOpts{
+		MessagesTotalCounters[c.Name] = prometheus.NewCounter(prometheus.CounterOpts{
 			Name:        prometheus.BuildFQName(namespace, "", "messages_feed_total_count"),
 			Help:        "How many messages are sent",
-			ConstLabels: prometheus.Labels{"feed": c.Type},
+			ConstLabels: prometheus.Labels{"feed": c.Name},
 		})
-		prometheus.MustRegister(MessagesTotalCounters[c.Type])
-		MessagesFailCounters[c.Type] = prometheus.NewCounter(prometheus.CounterOpts{
+		prometheus.MustRegister(MessagesTotalCounters[c.Name])
+		MessagesFailCounters[c.Name] = prometheus.NewCounter(prometheus.CounterOpts{
 			Name:        prometheus.BuildFQName(namespace, "", "messages_feed_fail_count"),
 			Help:        "How many messages are fail",
-			ConstLabels: prometheus.Labels{"feed": c.Type},
+			ConstLabels: prometheus.Labels{"feed": c.Name},
 		})
-		prometheus.MustRegister(MessagesFailCounters[c.Type])
-		PullsTotalCounters[c.Type] = prometheus.NewCounter(prometheus.CounterOpts{
+		prometheus.MustRegister(MessagesFailCounters[c.Name])
+		PullsTotalCounters[c.Name] = prometheus.NewCounter(prometheus.CounterOpts{
 			Name:        prometheus.BuildFQName(namespace, "", "pulls_feed_total_count"),
 			Help:        "How many pulls.",
-			ConstLabels: prometheus.Labels{"feed": c.Type},
+			ConstLabels: prometheus.Labels{"feed": c.Name},
 		})
-		prometheus.MustRegister(PullsTotalCounters[c.Type])
-		PullsFailCounters[c.Type] = prometheus.NewCounter(prometheus.CounterOpts{
+		prometheus.MustRegister(PullsTotalCounters[c.Name])
+		PullsFailCounters[c.Name] = prometheus.NewCounter(prometheus.CounterOpts{
 			Name:        prometheus.BuildFQName(namespace, "", "pulls_feed_fail_count"),
 			Help:        "How many failed pulls.",
-			ConstLabels: prometheus.Labels{"feed": c.Type},
+			ConstLabels: prometheus.Labels{"feed": c.Name},
 		})
-		prometheus.MustRegister(PullsFailCounters[c.Type])
+		prometheus.MustRegister(PullsFailCounters[c.Name])
 	}
 }
 

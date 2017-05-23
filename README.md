@@ -33,14 +33,27 @@ metrics_path: /metrics
 database_path: ./database.db
 disable_messenger: false
 agents:
-  - type: movies
-    endpoint: http://rss.weburg.net/movies/all.rss
+  - name: movies
+    endpoint:
+      type: rss
+      url: http://rss.weburg.net/movies/all.rss
     interval: 1m
     channel:
       type: channel
       username: weburg_movies
     cache_size: 3
     print_categories: true
+  - name: series
+    endpoint:
+      type: clever_title_series
+      url: http://weburg.net/series/all/?clever_title=1&template=0&last=0&sorts=date_update
+    interval: 1m
+    channel:
+      type: channel
+      username: weburg_series
+    cache_size: 2
+    print_categories: true
+    print_description: true
 ```
 
 Все значения, за исключением `agents`, могут быть переопределены переменными окружения и параметрами запуска.

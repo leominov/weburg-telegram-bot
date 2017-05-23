@@ -1,36 +1,40 @@
 ---
 agents:
-  - type: movies
-    endpoint: http://rss.weburg.net/movies/all.rss
-    interval: 1m
-    channel:
-      type: channel
-      username: weburg_movies
-    cache_size: 3
-    print_categories: true
-  - type: music
-    endpoint: http://rss.weburg.net/music/all.rss
-    interval: 1m
-    channel:
-      type: channel
-      username: weburg_music
-    cache_size: 3
-    print_categories: true
-  - type: news
-    endpoint: http://rss.weburg.net/news/all.rss
-    interval: 1m
-    channel:
-      type: channel
-      username: weburg_times
-    cache_size: 10
-    print_categories: true
-  - type: series
-    endpoint: http://rss.weburg.net/movies/series.rss
+  - name: series
+    endpoint:
+      type: clever_title_series
+      url: http://weburg.net/series/all/?clever_title=1&template=0&last=0&sorts=date_update
     interval: 1m
     channel:
       type: channel
       username: weburg_series
     cache_size: 2
     print_categories: true
-    skip_categories:
-      - Сериал
+    print_description: true
+  - name: movies
+    endpoint:
+      url: http://rss.weburg.net/movies/all.rss
+    interval: 1m
+    channel:
+      type: channel
+      username: weburg_movies
+    cache_size: 3
+    print_categories: true
+  - name: music
+    endpoint:
+      url: http://rss.weburg.net/music/all.rss
+    interval: 1m
+    channel:
+      type: channel
+      username: weburg_music
+    cache_size: 3
+    print_categories: true
+  - name: news
+    endpoint:
+      url: http://rss.weburg.net/news/all.rss
+    interval: 1m
+    channel:
+      type: channel
+      username: weburg_times
+    cache_size: 10
+    print_categories: true

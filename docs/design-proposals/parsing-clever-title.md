@@ -5,17 +5,10 @@
 ```
 ---
 agents:
-  - type: series
-    endpoint: http://weburg.net/series/all/?clever_title=1&template=0&last=0&sorts=date_update
-    endpoint_type: clever_title
-    interval: 1m
-    channel:
-      type: channel
-      username: weburg_series
-    cache_size: 2
-    print_categories: true
-    skip_categories:
-      - Сериал
+  - name: series
+    endpoint:
+      type: clever_title_series
+      url: http://weburg.net/series/all/?clever_title=1&template=0&last=0&sorts=date_update
 ```
 
 ## Requesting
