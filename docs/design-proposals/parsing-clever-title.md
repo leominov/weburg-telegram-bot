@@ -5,9 +5,9 @@
 ```
 ---
 agents:
-  - name: series
-    type: clever_title
+  - type: series
     endpoint: http://weburg.net/series/all/?clever_title=1&template=0&last=0&sorts=date_update
+    endpoint_type: clever_title
     interval: 1m
     channel:
       type: channel
