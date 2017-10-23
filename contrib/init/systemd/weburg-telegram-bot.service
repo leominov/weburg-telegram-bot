@@ -1,0 +1,12 @@
+[Unit]
+Description=Weburg Telegram Bot
+Documentation=https://github.com/leominov/weburg-telegram-bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=WEBURG_BOT_CONFIG_FILE=/opt/weburg-telegram-bot/config.yaml
+ExecStart=/opt/weburg-telegram-bot/weburg-telegram-bot
+
+[Install]
+WantedBy=multi-user.target
