@@ -12,6 +12,9 @@ type Messenger struct {
 }
 
 func (m *Messenger) Authorize() error {
+	if m.Disabled {
+		return nil
+	}
 	bot, err := telebot.NewBot(m.Token)
 	if err != nil {
 		return err
