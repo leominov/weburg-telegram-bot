@@ -78,7 +78,7 @@ var StartCommand = cli.Command{
 
 		b := bot.New(config)
 		if err := b.Setup(); err != nil {
-			logrus.Fatal(err)
+			logrus.Fatalf("Setup error: %v", err)
 		}
 
 		if !b.Config.Watch {
