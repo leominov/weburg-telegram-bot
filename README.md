@@ -44,6 +44,8 @@ agents:
       username: weburg_movies
     cache_size: 3
     print_categories: true
+    skip_categories:
+      - 18
   - name: series
     endpoint:
       type: clever_title_series
