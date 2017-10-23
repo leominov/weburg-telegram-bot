@@ -36,5 +36,7 @@ agents:
     channel:
       type: channel
       username: weburg_times
+    skip_categories:
+      - На правах рекламы
     cache_size: 10
     print_categories: true
