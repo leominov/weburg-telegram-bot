@@ -215,8 +215,8 @@ func (a *Agent) Notify(item EndpointItem) error {
 		item.Title = fmt.Sprintf("%s\n%s", item.Title, item.Description)
 	}
 
-	if a.PrintCategories && len(item.Categories) != 0 {
-		cleanedCategories := a.ClearCategories(item.Categories)
+	cleanedCategories := a.ClearCategories(item.Categories)
+	if a.PrintCategories && len(cleanedCategories) != 0 {
 		tmpCat := []string{}
 		for _, category := range cleanedCategories {
 			tmpCat = append(tmpCat, a.FormatCategoryName(category))
