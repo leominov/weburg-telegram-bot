@@ -55,8 +55,8 @@ agents:
       type: channel
       username: weburg_series
     cache_size: 2
-    # filter_categories: []
-    # skip_categories: []
+    # skip_print_categories: []
+    # allow_items_with_categories: []
     # skip_items_with_categories: []
     print_categories: true
     print_description: true

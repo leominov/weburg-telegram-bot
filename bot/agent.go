@@ -21,16 +21,16 @@ const (
 var hashCleaner = strings.NewReplacer(" ", "_", "-", "_", "+", "")
 
 type Agent struct {
-	Name                    string        `yaml:"name" json:"name"`
-	Endpoint                Endpoint      `yaml:"endpoint" json:"endpoint"`
-	FilterCategories        []string      `yaml:"filter_categories" json:"filter_categories"`
-	SkipCategories          []string      `yaml:"skip_categories" json:"skip_categories"`
-	SkipItemsWithCategories []string      `yaml:"skip_items_with_categories" json:"skip_items_with_categories"`
-	PrintCategories         bool          `yaml:"print_categories" json:"print_categories"`
-	PrintDescription        bool          `yaml:"print_description" json:"print_description"`
-	Interval                time.Duration `yaml:"interval" json:"interval"`
-	Channel                 telebot.Chat  `yaml:"channel" json:"channel"`
-	CacheSize               int           `yaml:"cache_size" json:"cache_size"`
+	Name                     string        `yaml:"name" json:"name"`
+	Endpoint                 Endpoint      `yaml:"endpoint" json:"endpoint"`
+	AllowItemsWithCategories []string      `yaml:"allow_items_with_categories" json:"allow_items_with_categories"`
+	SkipPrintCategories      []string      `yaml:"skip_print_categories" json:"skip_print_categories"`
+	SkipItemsWithCategories  []string      `yaml:"skip_items_with_categories" json:"skip_items_with_categories"`
+	PrintCategories          bool          `yaml:"print_categories" json:"print_categories"`
+	PrintDescription         bool          `yaml:"print_description" json:"print_description"`
+	Interval                 time.Duration `yaml:"interval" json:"interval"`
+	Channel                  telebot.Chat  `yaml:"channel" json:"channel"`
+	CacheSize                int           `yaml:"cache_size" json:"cache_size"`
 
 	messenger *Messenger
 	firstPoll bool
@@ -40,12 +40,12 @@ type Agent struct {
 
 func (a *Agent) ClearCategories(l []string) []string {
 	var result []string
-	if len(a.SkipCategories) == 0 {
+	if len(a.SkipPrintCategories) == 0 {
 		return l
 	}
 	for _, b := range l {
 		ina := false
-		for _, c := range a.SkipCategories {
+		for _, c := range a.SkipPrintCategories {
 			if b == c {
 				logrus.Debugf("Category %s was skipped", c)
 				ina = true
@@ -77,11 +77,11 @@ func (a *Agent) CanPost(item EndpointItem) bool {
 		}
 	}
 
-	if len(a.FilterCategories) == 0 {
+	if len(a.AllowItemsWithCategories) == 0 {
 		return true
 	}
 
-	for _, filterCategory := range a.FilterCategories {
+	for _, filterCategory := range a.AllowItemsWithCategories {
 		for _, category := range item.Categories {
 			if filterCategory == category {
 				return true
