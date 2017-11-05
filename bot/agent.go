@@ -21,15 +21,16 @@ const (
 var hashCleaner = strings.NewReplacer(" ", "_", "-", "_", "+", "")
 
 type Agent struct {
-	Name             string        `yaml:"name" json:"name"`
-	Endpoint         Endpoint      `yaml:"endpoint" json:"endpoint"`
-	FilterCategories []string      `yaml:"filter_categories" json:"filter_categories"`
-	SkipCategories   []string      `yaml:"skip_categories" json:"skip_categories"`
-	PrintCategories  bool          `yaml:"print_categories" json:"print_categories"`
-	PrintDescription bool          `yaml:"print_description" json:"print_description"`
-	Interval         time.Duration `yaml:"interval" json:"interval"`
-	Channel          telebot.Chat  `yaml:"channel" json:"channel"`
-	CacheSize        int           `yaml:"cache_size" json:"cache_size"`
+	Name                   string        `yaml:"name" json:"name"`
+	Endpoint               Endpoint      `yaml:"endpoint" json:"endpoint"`
+	FilterCategories       []string      `yaml:"filter_categories" json:"filter_categories"`
+	SkipCategories         []string      `yaml:"skip_categories" json:"skip_categories"`
+	SkipItemWithCategories []string      `yaml:"skip_item_with_categories" json:"skip_item_with_categories"`
+	PrintCategories        bool          `yaml:"print_categories" json:"print_categories"`
+	PrintDescription       bool          `yaml:"print_description" json:"print_description"`
+	Interval               time.Duration `yaml:"interval" json:"interval"`
+	Channel                telebot.Chat  `yaml:"channel" json:"channel"`
+	CacheSize              int           `yaml:"cache_size" json:"cache_size"`
 
 	messenger *Messenger
 	firstPoll bool
@@ -65,6 +66,14 @@ func (a *Agent) CanPost(item EndpointItem) bool {
 	for _, guid := range a.lastGuids {
 		if item.ID == guid {
 			return false
+		}
+	}
+
+	for _, category := range a.SkipItemWithCategories {
+		for _, itemCategory := range item.Categories {
+			if category == itemCategory {
+				return false
+			}
 		}
 	}
 
