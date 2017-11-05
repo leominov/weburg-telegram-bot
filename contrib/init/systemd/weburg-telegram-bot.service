@@ -6,6 +6,7 @@ Wants=network-online.target
 
 [Service]
 Environment=WEBURG_BOT_CONFIG_FILE=/opt/weburg-telegram-bot/config.yaml
+Environment=WEBURG_BOT_DATABASE_PATH=/opt/weburg-telegram-bot/database.db
 ExecStart=/opt/weburg-telegram-bot/weburg-telegram-bot
 
 [Install]
