@@ -47,7 +47,7 @@ func (a *Agent) ClearCategories(l []string) []string {
 		ina := false
 		for _, c := range a.SkipCategories {
 			if b == c {
-				logrus.Infof("%s = %s", b, c)
+				logrus.Debugf("Category %s was skipped", c)
 				ina = true
 			}
 		}
