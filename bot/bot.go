@@ -33,7 +33,7 @@ func (b *Bot) Setup() error {
 	b.InitMetrics()
 
 	if len(b.Config.Agents) == 0 {
-		return errors.New("Agents list cant be empty")
+		return errors.New("Agents list can't be empty")
 	}
 
 	messenger := &Messenger{

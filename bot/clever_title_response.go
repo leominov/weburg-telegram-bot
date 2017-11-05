@@ -31,22 +31,22 @@ func (c *CleverTitleResponse) processSeriesNode(iter *xmlpath.Iter) ([]EndpointI
 	categories := []string{}
 	title, ok := xpathSerialsTitle.String(iter.Node())
 	if !ok {
-		return itemList, errors.New("Cant get title")
+		return itemList, errors.New("Can't get title")
 	}
 	title = strings.TrimSpace(title)
 	titleOriginal, ok := xpathSerialsTitleOriginal.String(iter.Node())
 	if !ok {
-		return itemList, errors.New("Cant get original title")
+		return itemList, errors.New("Can't get original title")
 	}
 	titleOriginal = strings.TrimSpace(titleOriginal)
 	link, ok := xpathSerialsLink.String(iter.Node())
 	if !ok {
-		return itemList, errors.New("Cant get link")
+		return itemList, errors.New("Can't get link")
 	}
 	link = strings.TrimSpace(link)
 	description, ok := xpathSerialsDescription.String(iter.Node())
 	if !ok {
-		return itemList, errors.New("Cant get description")
+		return itemList, errors.New("Can't get description")
 	}
 	description = strings.TrimSpace(description)
 	categoriesIter := xpathSerialsCategories.Iter(iter.Node())
