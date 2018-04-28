@@ -15,7 +15,7 @@ var (
 	xpathSerialsTitle           = xmlpath.MustCompile(`.//h3/a`)
 	xpathSerialsLink            = xmlpath.MustCompile(`.//h3/a/@href`)
 	xpathSerialsTitleOriginal   = xmlpath.MustCompile(`.//div[@class="wb-serials-title"]`)
-	xpathSerialsDescription     = xmlpath.MustCompile(`.//div[@class="wb-serials-last-series"]/a`)
+	xpathSerialsDescription     = xmlpath.MustCompile(`.//a[@class="wb-serials-last-series__link"]`)
 	xpathSerialsCategories      = xmlpath.MustCompile(`.//ul[@class="wb-serials-tags"]/li`)
 	xpathSerialsCategoriesTitle = xmlpath.MustCompile(`.//a`)
 )
@@ -36,17 +36,17 @@ func (c *CleverTitleResponse) processSeriesNode(iter *xmlpath.Iter) ([]EndpointI
 	title = strings.TrimSpace(title)
 	titleOriginal, ok := xpathSerialsTitleOriginal.String(iter.Node())
 	if !ok {
-		return itemList, errors.New("Can't get original title")
+		return itemList, fmt.Errorf("Can't get original title for %s", title)
 	}
 	titleOriginal = strings.TrimSpace(titleOriginal)
 	link, ok := xpathSerialsLink.String(iter.Node())
 	if !ok {
-		return itemList, errors.New("Can't get link")
+		return itemList, fmt.Errorf("Can't get link for %s (%s)", title, titleOriginal)
 	}
 	link = strings.TrimSpace(link)
 	description, ok := xpathSerialsDescription.String(iter.Node())
 	if !ok {
-		return itemList, errors.New("Can't get description")
+		return itemList, fmt.Errorf("Can't get description for %s (%s)", title, titleOriginal)
 	}
 	description = strings.TrimSpace(description)
 	categoriesIter := xpathSerialsCategories.Iter(iter.Node())
@@ -72,6 +72,7 @@ func (c *CleverTitleResponse) ParseItems(cleverTitleType string) ([]EndpointItem
 	if len(c.Items) == 0 {
 		return itemList, errors.New("Empty item list")
 	}
+	fmt.Println(c.Items)
 	root, err := xmlpath.ParseHTML(strings.NewReader(c.Items))
 	if err != nil {
 		return itemList, err
