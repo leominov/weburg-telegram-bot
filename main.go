@@ -8,7 +8,7 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-var Version string = "1.0-beta"
+var Version string = "1.0.0"
 
 func main() {
 	app := cli.NewApp()
