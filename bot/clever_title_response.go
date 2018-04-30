@@ -72,7 +72,6 @@ func (c *CleverTitleResponse) ParseItems(cleverTitleType string) ([]EndpointItem
 	if len(c.Items) == 0 {
 		return itemList, errors.New("Empty item list")
 	}
-	fmt.Println(c.Items)
 	root, err := xmlpath.ParseHTML(strings.NewReader(c.Items))
 	if err != nil {
 		return itemList, err
